@@ -3,7 +3,9 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="NonSerializableFieldInSerializableClass" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignorableAnnotations">
-        <value />
+        <value>
+          <item value="com.fasterxml.jackson.annotation.JsonMerge" />
+        </value>
       </option>
       <option name="ignoreAnonymousInnerClasses" value="false" />
       <option name="superClassString" value="java.awt.Component" />
