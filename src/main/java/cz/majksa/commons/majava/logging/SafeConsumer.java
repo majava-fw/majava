@@ -18,21 +18,36 @@
 
 package cz.majksa.commons.majava.logging;
 
+import javax.annotation.Nullable;
+import java.util.function.Function;
+
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.logging.SafeRunnable}</b></p>
+ * <p><b>Interface {@link SafeConsumer}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
 @FunctionalInterface
-public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
+public interface SafeConsumer<P, T extends Throwable> extends Function<P, T> {
+
+    /**
+     * The main method that may throw a throwable
+     *
+     * @throws T the exception thrown
+     */
+    void execute(P param) throws T;
 
     @Override
-    default void execute(Void param) throws T {
-        execute();
+    @Nullable
+    @SuppressWarnings("unchecked")
+    default T apply(P p) {
+        try {
+            execute(p);
+            return null;
+        } catch (Throwable t) {
+            return (T) t;
+        }
     }
-
-    void execute() throws T;
 
 }

@@ -56,7 +56,7 @@ public class MethodsDeserializer extends StdDeserializer<Methods> {
                     .forEach(methods::put);
             return methods;
         } catch (ClassNotFoundException e) {
-            throw new InvalidFormatException(p, e.getMessage(), raw, Method.class);
+            throw new InvalidFormatException(p, e.getMessage(), raw, Methods.class);
         }
     }
 

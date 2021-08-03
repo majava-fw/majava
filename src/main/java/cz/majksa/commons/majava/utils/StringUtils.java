@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.logging.SafeRunnable
+ *  majava - cz.majksa.commons.majava.utils.StringUtils
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.logging;
+package cz.majksa.commons.majava.utils;
+
+import javax.annotation.Nonnull;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.logging.SafeRunnable}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.utils.StringUtils}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@FunctionalInterface
-public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
+public class StringUtils {
 
-    @Override
-    default void execute(Void param) throws T {
-        execute();
+    @Nonnull
+    public static String repeat(@Nonnull String text, int amount) {
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < amount; i++) {
+            builder.append(text);
+        }
+        return builder.toString();
     }
-
-    void execute() throws T;
 
 }

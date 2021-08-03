@@ -18,14 +18,19 @@
 
 package cz.majksa.commons.majava.context;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import cz.majksa.commons.majava.context.config.ApplicationConfig;
 import cz.majksa.commons.majava.di.Container;
 import cz.majksa.commons.majava.di.SimpleContainer;
+import cz.majksa.commons.majava.modules.Modules;
+import cz.majksa.commons.majava.modules.ModulesStarter;
 import lombok.Data;
-import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.util.Map;
 
 /**
  * <p><b>Class {@link cz.majksa.commons.majava.context.ApplicationContext}</b></p>
@@ -39,24 +44,69 @@ public class ApplicationContext {
 
     @Nonnull
     private final String name;
+    private final boolean debug;
     @Nonnull
     private final Container container;
+    @Nonnull
+    private final Modules modules = new Modules();
+    @Nonnull
+    private final ModulesStarter modulesStarter;
+    @Nullable
+    private final URI tmp;
 
-    @SneakyThrows
-    public static ApplicationContext from(@Nullable ApplicationConfig config) {
-        if (config == null) {
-            return new ApplicationContext("Majava", new SimpleContainer());
-        }
-        final Container container;
-        if (config.getDi() == null) {
-            container = new SimpleContainer();
-        } else {
-            container = (Container) config.getDi().invoke(null);
-        }
+    public ApplicationContext(@Nonnull String name, boolean debug, @Nonnull Container container, @Nullable URI tmp) {
+        this.name = name;
+        this.debug = debug;
+        this.container = container;
+        this.modulesStarter = new ModulesStarter(modules);
+        this.tmp = tmp;
+    }
+
+    /**
+     * Creates {@link cz.majksa.commons.majava.context.ApplicationContext} from {@link cz.majksa.commons.majava.context.config.ApplicationConfig}
+     *
+     * @param config the application config
+     * @return {@link cz.majksa.commons.majava.context.ApplicationContext}
+     */
+    public static ApplicationContext from(@Nonnull ApplicationConfig config) {
         return new ApplicationContext(
                 config.getName(),
-                container
-        );
+                config.isDebug(),
+                createContainer(config),
+                config.getTmp()
+        ).loadModules(config);
+    }
+
+    /**
+     * Loads or creates a simple container from the config
+     *
+     * @param config the application config
+     * @return the container
+     */
+    @Nonnull
+    private static Container createContainer(@Nonnull ApplicationConfig config) {
+        if (config.getDi() == null) {
+            return new SimpleContainer();
+        } else {
+            try {
+                return (Container) config.getDi().invoke(null);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+    }
+
+    /**
+     * Loads the modules from the config
+     *
+     * @param config the application config
+     * @return {@link cz.majksa.commons.majava.context.ApplicationContext}
+     */
+    @Nonnull
+    private ApplicationContext loadModules(@Nonnull ApplicationConfig config) {
+        final Map<String, JsonNode> configs = config.getModuleConfigs();
+        config.getModules().forEach((name, clazz) -> modules.add(modules.create(this, clazz, configs.get(name))));
+        return this;
     }
 
 }

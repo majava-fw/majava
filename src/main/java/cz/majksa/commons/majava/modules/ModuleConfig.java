@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.logging.SafeRunnable
+ *  majava - cz.majksa.commons.majava.modules.ModuleConfig
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.logging;
+package cz.majksa.commons.majava.modules;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.RequiredArgsConstructor;
+
+import javax.annotation.Nullable;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.logging.SafeRunnable}</b></p>
+ * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@FunctionalInterface
-public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
+@RequiredArgsConstructor
+public abstract class ModuleConfig {
 
-    @Override
-    default void execute(Void param) throws T {
-        execute();
-    }
-
-    void execute() throws T;
+    @Nullable
+    protected final JsonNode node;
 
 }

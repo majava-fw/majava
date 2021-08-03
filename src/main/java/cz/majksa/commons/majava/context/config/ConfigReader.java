@@ -22,8 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import cz.majksa.commons.majava.context.config.deserialization.ApplicationConfigDeserializer;
 import cz.majksa.commons.majava.context.config.deserialization.MethodsDeserializer;
 import cz.majksa.commons.majava.context.config.deserialization.URIDeserializer;
+import cz.majksa.commons.majava.listeners.ListenersModule;
+import cz.majksa.commons.majava.modules.Module;
+import cz.majksa.commons.majava.modules.ModuleConfig;
+import cz.majksa.commons.majava.utils.CollectionUtils;
 import cz.majksa.commons.majava.utils.LambaUtils;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -35,7 +40,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +54,8 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 public class ConfigReader {
+
+    public static final HashMap<String, Class<? extends Module<? extends ModuleConfig>>> defaultModules = new HashMap<>();
 
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -61,11 +71,14 @@ public class ConfigReader {
         final SimpleModule module = new SimpleModule();
         module.addDeserializer(Methods.class, new MethodsDeserializer());
         module.addDeserializer(URI.class, new URIDeserializer());
+        module.addDeserializer(ApplicationConfig.class, new ApplicationConfigDeserializer());
         mapper.registerModule(module);
+        defaultModules.put("listeners", ListenersModule.class);
     }
 
     public ConfigReader(@Nonnull File file) throws IOException {
         config = mapper.readValue(file, ApplicationConfig.class);
+        config.setModules(CollectionUtils.mergeMaps(defaultModules, config.getModules()));
         reader = mapper.readerForUpdating(config);
         usedFiles.add(file);
         read(file, new ArrayList<>(config.getInclude()));
@@ -76,6 +89,15 @@ public class ConfigReader {
                         .map(File::getAbsolutePath)
                         .collect(Collectors.toList())
         );
+        checkConfigOptions();
+    }
+
+    private void checkConfigOptions() {
+        final Set<String> moduleKeys = new HashSet<>(config.getModuleConfigs().keySet());
+        moduleKeys.removeAll(config.getModules().keySet());
+        if (moduleKeys.size() > 0) {
+            throw new IllegalArgumentException("Unexpected options inside config: " + String.join(", ", moduleKeys));
+        }
     }
 
     private void read(@Nonnull File current, @Nonnull List<String> files) throws IOException {

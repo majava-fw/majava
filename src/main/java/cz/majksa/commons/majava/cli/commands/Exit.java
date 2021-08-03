@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.logging.SafeRunnable
+ *  majava - cz.majksa.commons.majava.cli.commands.Exit
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.logging;
+package cz.majksa.commons.majava.cli.commands;
+
+import org.apache.commons.cli.CommandLine;
+
+import javax.annotation.Nonnull;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.logging.SafeRunnable}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.cli.commands.Exit}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@FunctionalInterface
-public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
+public class Exit extends CliCommand {
 
-    @Override
-    default void execute(Void param) throws T {
-        execute();
+    public Exit() {
+        super(null, "exit", "exits the program");
     }
 
-    void execute() throws T;
+    @Override
+    protected void onCommand(@Nonnull CommandLine commandLine) throws ConsoleRuntimeException {
+        System.exit(0);
+    }
 
 }

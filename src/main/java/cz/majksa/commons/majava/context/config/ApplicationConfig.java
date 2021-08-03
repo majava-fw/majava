@@ -19,7 +19,9 @@
 package cz.majksa.commons.majava.context.config;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-import cz.majksa.commons.majava.Application;
+import com.fasterxml.jackson.databind.JsonNode;
+import cz.majksa.commons.majava.modules.Module;
+import cz.majksa.commons.majava.modules.ModuleConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,7 @@ import lombok.SneakyThrows;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,13 +57,24 @@ public class ApplicationConfig implements Config {
     @JsonMerge
     private String name = "Majava";
 
+    @JsonMerge
+    private boolean debug = false;
+
+    @Nullable
+    @JsonMerge
+    private URI tmp = null;
+
     @Nonnull
     @JsonMerge
     private List<String> include = new ArrayList<>();
 
     @Nonnull
     @JsonMerge
-    private Map<String, Config> modules = new HashMap<>();
+    private Map<String, Class<? extends Module<? extends ModuleConfig>>> modules = new HashMap<>();
+
+    @Nonnull
+    @JsonMerge
+    private Map<String, JsonNode> moduleConfigs = new HashMap<>();
 
     @Nullable
     @JsonMerge
@@ -75,14 +89,19 @@ public class ApplicationConfig implements Config {
     }
 
     @Nonnull
-    @SneakyThrows
     public static ApplicationConfig load() {
-        final URL url = loader.getResource("majava.yml");
+        return load(null);
+    }
+
+    @Nonnull
+    @SneakyThrows
+    public static ApplicationConfig load(@Nullable String config) {
+        final URL url = loader.getResource(config == null ? "majava.yml" : config);
         if (url == null) {
-            Application
-                    .getLogger()
-                    .atWarn()
-                    .log("No config provided. Using default settings!");
+//            Application
+//                    .getLogger()
+//                    .atWarn()
+//                    .log("No config provided. Using default settings!");
             return new ApplicationConfig();
         }
         return ConfigReader.read(url);

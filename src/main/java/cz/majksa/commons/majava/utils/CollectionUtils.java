@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.logging.SafeRunnable
+ *  majava - cz.majksa.commons.majava.utils.CollectionUtils
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.logging;
+package cz.majksa.commons.majava.utils;
+
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.logging.SafeRunnable}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.utils.CollectionUtils}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@FunctionalInterface
-public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
+public class CollectionUtils {
 
-    @Override
-    default void execute(Void param) throws T {
-        execute();
+    @Nonnull
+    @SafeVarargs
+    public static  <K, V> Map<K, V> mergeMaps(@Nonnull Map<K, V>... maps) {
+        final HashMap<K, V> finalMap = new HashMap<>();
+        for (Map<K, V> map : maps) {
+            finalMap.putAll(map);
+        }
+        return finalMap;
     }
-
-    void execute() throws T;
 
 }

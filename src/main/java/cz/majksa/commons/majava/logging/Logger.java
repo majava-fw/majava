@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
 import org.apache.logging.log4j.Marker;
@@ -48,6 +49,8 @@ public class Logger {
     @Getter
     private final List<LogListener> listeners = new ArrayList<>();
     private final Collection<ErrorsSaver> errorsSavers = new HashSet<>();
+    @Setter
+    private Level level = Level.ERROR;
 
     /**
      * Adds a listener
@@ -168,6 +171,9 @@ public class Logger {
      * @param throwable the {@code Throwable} to log, including its stack trace.
      */
     void logMessage(Level level, Marker marker, StackTraceElement location, Message message, Throwable throwable) {
+        if (level.isLessSpecificThan(this.level)) {
+            return;
+        }
         logger.logMessage(level, marker, LogBuilderImpl.FQCN, location, message, throwable);
         if (throwable != null) {
             errorsSavers.forEach(errorsSaver -> errorsSaver.save(throwable));
