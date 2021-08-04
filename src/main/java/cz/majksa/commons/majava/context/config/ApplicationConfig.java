@@ -57,9 +57,6 @@ public class ApplicationConfig implements Config {
     @JsonMerge
     private String name = "Majava";
 
-    @JsonMerge
-    private boolean debug = false;
-
     @Nullable
     @JsonMerge
     private URI tmp = null;
