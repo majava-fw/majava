@@ -59,6 +59,14 @@ public abstract class Module<C extends ModuleConfig> {
 
     protected CompletableFuture<Void> future;
 
+    /**
+     * Constructor
+     *
+     * @param config      module config
+     * @param context     application context
+     * @param name        module name
+     * @param description module description
+     */
     public Module(@Nonnull C config, @Nonnull ApplicationContext context, @Nonnull String name, @Nonnull String description) {
         this.config = config;
         this.context = context;
@@ -67,6 +75,11 @@ public abstract class Module<C extends ModuleConfig> {
         cliCommands = new CommandsGroup(name, description);
     }
 
+    /**
+     * Get the cast class of the module
+     *
+     * @return the class
+     */
     @SuppressWarnings("unchecked")
     public Class<? extends Module<C>> getModuleClass() {
         return (Class<? extends Module<C>>) getClass();
@@ -98,11 +111,21 @@ public abstract class Module<C extends ModuleConfig> {
         return future;
     }
 
+    /**
+     * Method executed on module start
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     protected CompletableFuture<Void> onStart() {
         return CompletableFuture.runAsync(() -> {});
     }
 
+    /**
+     * Method executed on module shutdown
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     protected CompletableFuture<Void> onShutdown() {
         return CompletableFuture.runAsync(() -> {});

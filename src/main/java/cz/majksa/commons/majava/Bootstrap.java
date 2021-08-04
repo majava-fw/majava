@@ -34,10 +34,22 @@ import javax.annotation.Nullable;
  */
 public class Bootstrap {
 
+    /**
+     * Boots the application with default config file
+     *
+     * @return {@link cz.majksa.commons.majava.cli.CliApplication}
+     */
     public static CliApplication boot() {
         return boot(null);
     }
 
+
+    /**
+     * Boots the application with provided config file
+     *
+     * @param configFile the config file
+     * @return {@link cz.majksa.commons.majava.cli.CliApplication}
+     */
     public static CliApplication boot(@Nullable String configFile) {
         final ApplicationConfig config = ApplicationConfig.load(configFile);
         final ApplicationContext context = new ApplicationContext(config);

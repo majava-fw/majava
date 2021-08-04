@@ -80,6 +80,11 @@ public class ApplicationConfig implements Config {
     @JsonMerge
     private Methods di = null;
 
+    /**
+     * Get the method to create {@link cz.majksa.commons.majava.di.Container}
+     *
+     * @return the method
+     */
     @Nullable
     public Method getDi() {
         if (di == null) {
@@ -88,11 +93,22 @@ public class ApplicationConfig implements Config {
         return di.get();
     }
 
+    /**
+     * Load the config from default location
+     *
+     * @return the loaded config
+     */
     @Nonnull
     public static ApplicationConfig load() {
         return load(null);
     }
 
+    /**
+     * Load the config from provided location
+     *
+     * @param config the location
+     * @return the loaded config
+     */
     @Nonnull
     @SneakyThrows
     public static ApplicationConfig load(@Nullable String config) {

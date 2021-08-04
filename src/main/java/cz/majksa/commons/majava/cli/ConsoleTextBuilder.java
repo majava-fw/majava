@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 
 /**
  * <p><b>Class {@link cz.majksa.commons.majava.cli.ConsoleTextBuilder}</b></p>
+ * A fancy way to print modified text to console
  *
  * @author majksa
  * @version 1.0.0
@@ -36,6 +37,12 @@ public final class ConsoleTextBuilder {
 
     private int width = 0;
 
+    /**
+     * Appends a text to the builder
+     *
+     * @param csq the text to be appended
+     * @return {@link cz.majksa.commons.majava.cli.ConsoleModifiers}
+     */
     @Nonnull
     public ConsoleTextBuilder append(CharSequence csq) {
         if (width + csq.length() > WIDTH) {
@@ -53,22 +60,44 @@ public final class ConsoleTextBuilder {
         return this;
     }
 
+    /**
+     * Apply a modification to the following text
+     *
+     * @param modification the modification
+     * @return {@link cz.majksa.commons.majava.cli.ConsoleModifiers}
+     */
     @Nonnull
-    public ConsoleTextBuilder modify(@Nonnull ConsoleModifiers color) {
-        builder.append(color);
+    public ConsoleTextBuilder modify(@Nonnull ConsoleModifiers modification) {
+        builder.append(modification);
         return this;
     }
 
+    /**
+     * Reset all modifications of the following text
+     *
+     * @return {@link cz.majksa.commons.majava.cli.ConsoleModifiers}
+     */
     @Nonnull
     public ConsoleTextBuilder reset() {
         return modify(ConsoleModifiers.RESET);
     }
 
+    /**
+     * Adds a new line and resets
+     *
+     * @return {@link cz.majksa.commons.majava.cli.ConsoleModifiers}
+     */
     @Nonnull
     public ConsoleTextBuilder newLine() {
         return newLine(true);
     }
 
+    /**
+     * Adds a new line and resets if <code>reset</code> is true
+     *
+     * @param reset if the modifications should be reset
+     * @return {@link cz.majksa.commons.majava.cli.ConsoleModifiers}
+     */
     @Nonnull
     public ConsoleTextBuilder newLine(boolean reset) {
         if (reset) {
@@ -79,17 +108,28 @@ public final class ConsoleTextBuilder {
         return this;
     }
 
+    /**
+     * Builds a raw text
+     *
+     * @return the raw text
+     */
     @Nonnull
     public String build() {
         newLine();
         return builder.toString();
     }
 
+    /**
+     * Prints the text to console
+     */
     public void print() {
         System.out.print(build());
         clear();
     }
 
+    /**
+     * Clears the builder
+     */
     public void clear() {
         builder.setLength(0);
         width = 0;

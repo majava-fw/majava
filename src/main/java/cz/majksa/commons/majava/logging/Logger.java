@@ -34,7 +34,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.net.URI;
-import java.util.function.Function;
 
 /**
  * <p><b>Class {@link Logger}</b></p>
@@ -54,9 +53,9 @@ public class Logger {
     private Level level = Level.ERROR;
 
     @SneakyThrows
-    public Logger(@Nonnull org.apache.logging.log4j.Logger logger, @Nullable URI errors, @Nonnull Function<Throwable, Void> loggingFunction) {
+    public Logger(@Nonnull org.apache.logging.log4j.Logger logger, @Nullable URI errors, @Nonnull LogEventHandler logEventHandler) {
         this.logger = logger;
-        logEventHandler = new LogEventHandler(loggingFunction);
+        this.logEventHandler = logEventHandler;
         if (errors == null) {
             errorsSaver = null;
         } else {
@@ -152,7 +151,9 @@ public class Logger {
         logger.logMessage(level, marker, LogBuilderImpl.FQCN, location, message, throwable);
         final LogEvent event = LogEvent.from(level, marker, location, message, throwable);
         if (event != null) {
-            logEventHandler.runEvent(event);
+            if (logEventHandler.isRunning()) {
+                logEventHandler.runEvent(event);
+            }
         }
         if (throwable != null && errorsSaver != null) {
             errorsSaver.save(throwable);

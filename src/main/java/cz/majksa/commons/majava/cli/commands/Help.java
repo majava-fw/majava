@@ -64,10 +64,25 @@ public class Help extends CliCommand {
         builder.print();
     }
 
+    /**
+     * Adds a group to the builder
+     *
+     * @param builder the builder
+     * @param group   the command group
+     * @param length  the max route length
+     */
     private void addToBuilder(@Nonnull ConsoleTextBuilder builder, @Nonnull CommandsGroup group, int length) {
         group.getCommands().forEach((name, context) -> addToBuilder(builder, context.getRoute(), context.getDescription(), length));
     }
 
+    /**
+     * Adds a command to the builder
+     *
+     * @param builder     the builder
+     * @param name        the command name
+     * @param description the command description
+     * @param length      the max route length
+     */
     private void addToBuilder(@Nonnull ConsoleTextBuilder builder, @Nonnull String name, @Nonnull String description, int length) {
         builder
                 .modify(ConsoleModifiers.GREEN)

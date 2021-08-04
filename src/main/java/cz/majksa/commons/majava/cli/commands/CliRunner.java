@@ -46,11 +46,24 @@ public final class CliRunner {
         rootCommands.put("exit", new Exit());
     }
 
+    /**
+     * Registers and creates a new commands group
+     *
+     * @param name        the name(space) of the new group
+     * @param description the description of the new group
+     * @return the created group
+     */
     @Nonnull
     public CommandsGroup register(@Nonnull String name, @Nonnull String description) {
         return register(new CommandsGroup(name, description));
     }
 
+    /**
+     * Registers the provided group
+     *
+     * @param group the group to register
+     * @return the group
+     */
     @Nonnull
     public CommandsGroup register(@Nonnull CommandsGroup group) {
         if (commands.containsKey(group.getName())) {
@@ -60,10 +73,22 @@ public final class CliRunner {
         return group;
     }
 
+    /**
+     * Run the input
+     *
+     * @param arg the input that will be split into args
+     * @throws ConsoleRuntimeException the runtime exception
+     */
     public void run(@Nonnull String arg) throws ConsoleRuntimeException {
         run(arg.split(" "));
     }
 
+    /**
+     * Run the arguments
+     *
+     * @param args the arguments to be run
+     * @throws ConsoleRuntimeException the runtime exception
+     */
     public void run(@Nonnull String[] args) throws ConsoleRuntimeException {
         assert args.length > 0;
         final String cmd = args[0];
@@ -76,6 +101,13 @@ public final class CliRunner {
         consumer.get().run(cmdArgs);
     }
 
+    /**
+     * Get the command object by the provided route
+     *
+     * @param group the group part
+     * @param command the command part
+     * @return the {@link java.util.Optional} command
+     */
     @Nonnull
     private Optional<CliCommand> getCommand(@Nonnull String group, @Nullable String command) {
         if (command == null) {

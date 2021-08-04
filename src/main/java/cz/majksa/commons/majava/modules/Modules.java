@@ -50,14 +50,32 @@ public final class Modules {
     @Nonnull
     private final Map<Class<? extends Module<? extends ModuleConfig>>, Module<? extends ModuleConfig>> map = new HashMap<>();
 
+    /**
+     * Constructor
+     *
+     * @param modules the initial modules
+     */
     public Modules(@Nonnull List<Module<? extends ModuleConfig>> modules) {
         modules.forEach(this::add);
     }
 
+    /**
+     * Add a modules to the module list
+     *
+     * @param module the module to be added
+     */
     public void add(@Nonnull Module<? extends ModuleConfig> module) {
         map.put(module.getModuleClass(), module);
     }
 
+    /**
+     * Create a new module and add it
+     *
+     * @param context the application context
+     * @param clazz   the module class
+     * @param node    the module config
+     * @return the created module
+     */
     @Nonnull
     public Module<? extends ModuleConfig> create(@Nonnull ApplicationContext context, @Nonnull Class<? extends Module<? extends ModuleConfig>> clazz, @Nullable JsonNode node) {
         final List<Constructor<?>> constructors = Arrays.stream(clazz.getConstructors())
@@ -72,7 +90,9 @@ public final class Modules {
         final Class<?> configClass = constructor.getParameterTypes()[0];
         try {
             final Object config = configClass.getConstructor(ConfigNode.class).newInstance(new ConfigNode(node));
-            return (Module<? extends ModuleConfig>) constructor.newInstance(config, context);
+            final Module<? extends ModuleConfig> module = (Module<? extends ModuleConfig>) constructor.newInstance(config, context);
+            context.getContainer().register(module);
+            return module;
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
             throw new IllegalArgumentException(String.format("There must be a public constructor with a single argument %s in the config class: %s", ConfigNode.class, configClass));
         } catch (InvocationTargetException e) {
@@ -80,6 +100,13 @@ public final class Modules {
         }
     }
 
+    /**
+     * Get a module from the list
+     *
+     * @param module the module class
+     * @param <M>    the module type
+     * @return the module
+     */
     @SuppressWarnings("unchecked")
     public <M extends Module<? extends ModuleConfig>> M get(@Nonnull Class<M> module) {
         return (M) map.get(module);

@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -44,6 +45,8 @@ public abstract class AbstractEventsHandler<E> implements EventsHandler<E> {
     @Nonnull
     protected final Function<Throwable, Void> loggingFunction;
 
+    private boolean running = false;
+
     /**
      * The entry points are registered here.
      *
@@ -51,5 +54,31 @@ public abstract class AbstractEventsHandler<E> implements EventsHandler<E> {
      */
     @Nonnull
     protected final Map<Class<? extends E>, EntryPointList<? extends E>> entryPointsMap = new HashMap<>();
+
+    @Override
+    public void start() {
+        if (running) {
+            throw new IllegalStateException("Event handler " + getClass().getName() + " is already running!");
+        }
+        running = true;
+        onStart().join();
+    }
+
+    @Override
+    public void stop() {
+        if (!running) {
+            throw new IllegalStateException("Event handler " + getClass().getName() + " is not running yet!");
+        }
+        running = false;
+        onStop().join();
+    }
+
+    protected CompletableFuture<Void> onStart() {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    protected CompletableFuture<Void> onStop() {
+        return CompletableFuture.completedFuture(null);
+    }
 
 }

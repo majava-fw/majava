@@ -38,6 +38,11 @@ public class ConfigNode {
     @Nonnull
     private final JsonNode node;
 
+    /**
+     * Constructor
+     *
+     * @param jsonNode the node to be wrapped as a config node
+     */
     public ConfigNode(@Nullable JsonNode jsonNode) {
         if (jsonNode == null) {
             node = NullNode.instance;
@@ -46,10 +51,24 @@ public class ConfigNode {
         }
     }
 
+    /**
+     * Convert the node itself to a required value
+     *
+     * @param <T> the required value
+     * @return the converted node
+     */
     public <T> T convert() {
         return new ObjectMapper().convertValue(node, new TypeReference<T>() {});
     }
 
+    /**
+     * Get the child and convert it.
+     * <code>null</code> if child does not exist
+     *
+     * @param key the key of the child
+     * @param <T> the required value
+     * @return the converted child
+     */
     @Nullable
     public <T> T get(@Nonnull String key) {
         final JsonNode jsonNode = node.get(key);
@@ -59,13 +78,22 @@ public class ConfigNode {
         return new ObjectMapper().convertValue(jsonNode, new TypeReference<T>() {});
     }
 
+    /**
+     * Get the child and convert it.
+     * <code>defaultValue</code> if child does not exist
+     *
+     * @param key          the key of the child
+     * @param <T>          the required value
+     * @param defaultValue the value if child does not exist
+     * @return the converted child
+     */
     @Nonnull
     public <T> T getOrDefault(@Nonnull String key, @Nonnull T defaultValue) {
-        final JsonNode jsonNode = node.get(key);
-        if (jsonNode == null) {
+        final T value = get(key);
+        if (value == null) {
             return defaultValue;
         }
-        return new ObjectMapper().convertValue(jsonNode, new TypeReference<T>() {});
+        return value;
     }
 
 }

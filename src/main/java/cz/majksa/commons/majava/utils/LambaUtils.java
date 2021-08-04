@@ -30,6 +30,13 @@ import java.util.function.Predicate;
  */
 public class LambaUtils {
 
+    /**
+     * Negates a predicate
+     *
+     * @param predicate the predicate to be negated
+     * @param <T>       the predicate argument type
+     * @return the negated predicate
+     */
     @Nonnull
     public static <T> Predicate<T> negate(@Nonnull Predicate<T> predicate) {
         return predicate.negate();

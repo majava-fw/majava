@@ -19,13 +19,12 @@
 package cz.majksa.commons.majava.cli;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
 
 /**
- * <p><b>Enum {@link ConsoleModifiers}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.cli.ConsoleModifiers}</b></p>
  *
  * @author majksa
  * @version 1.0.0
@@ -85,11 +84,24 @@ public class ConsoleModifiers {
         this.ansi = "\u001B[38;2;" + rgb.getRed() + ";" + rgb.getGreen() + ";" + rgb.getBlue() + "m";
     }
 
-    public String color(@Nonnull String text) {
-        return color(text, true);
+    /**
+     * Adds an effect to the text
+     *
+     * @param text the text to be modified
+     * @return the modified text
+     */
+    public String modify(@Nonnull String text) {
+        return modify(text, true);
     }
 
-    public String color(@Nonnull String text, boolean reset) {
+    /**
+     * Adds an effect to the text
+     *
+     * @param text  the text to be modified
+     * @param reset if the effect should be reset after
+     * @return the modified text
+     */
+    public String modify(@Nonnull String text, boolean reset) {
         return ansi + text + (reset ? RESET.ansi : "");
     }
 
@@ -97,4 +109,5 @@ public class ConsoleModifiers {
     public String toString() {
         return ansi;
     }
+
 }

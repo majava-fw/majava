@@ -41,6 +41,14 @@ public class URIDeserializer extends StdDeserializer<URI> {
         super(URI.class);
     }
 
+    /**
+     * Deserializes the provided json to {@link java.net.URI}
+     *
+     * @param p    the parser
+     * @param ctxt the context
+     * @return the parse {@link java.net.URI}
+     * @throws IOException if an error occurs while parsing
+     */
     @Override
     public URI deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return new File(p.getText()).toURI();

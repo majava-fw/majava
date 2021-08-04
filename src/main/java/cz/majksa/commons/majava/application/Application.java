@@ -79,21 +79,27 @@ public final class Application {
                 .join();
     }
 
+    /**
+     * Restarts the application
+     */
     public void restart() {
         if (running) {
-            exit();
+            stop();
         }
         start();
     }
 
-    public void exit() {
+    /**
+     * Stops the application
+     */
+    public void stop() {
         if (!running) {
             throw new IllegalStateException("Application has not been started yet.");
         }
         running = false;
         logger
                 .atDebug()
-                .log("Trying to exit the application!");
+                .log("Trying to stop the application!");
         context
                 .getModulesStarter()
                 .shutdown()

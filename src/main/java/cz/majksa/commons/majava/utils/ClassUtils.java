@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -34,11 +33,27 @@ import java.util.List;
  */
 public class ClassUtils {
 
+    /**
+     * Gets the class object from raw class
+     *
+     * @param raw the raw class name with namespace
+     * @return {@link java.lang.Class}
+     * @throws ClassNotFoundException if class was not found
+     */
     @Nonnull
     public static Class<?> toClass(@Nonnull String raw) throws ClassNotFoundException {
         return Class.forName(raw);
     }
 
+    /**
+     * Gets a static method  from the raw string in the format <code>class::method</code>
+     *
+     * @param raw            the raw string in the format <code>class::method</code>
+     * @param parameterTypes the method arguments
+     * @return {@link java.lang.reflect.Method}
+     * @throws ClassNotFoundException if class was not found
+     * @throws NoSuchMethodException  if method was not found
+     */
     @Nonnull
     public static Method toClassMethod(@Nonnull String raw, Class<?>... parameterTypes) throws ClassNotFoundException, NoSuchMethodException {
         String[] parts = raw.split("::");
@@ -46,11 +61,35 @@ public class ClassUtils {
         return clazz.getDeclaredMethod(parts[1], parameterTypes);
     }
 
+    /**
+     * Gets all parents of a class, including interfaces
+     *
+     * @param clazz the class
+     * @return the parents
+     */
     @Nonnull
     public static List<Class<?>> getParents(@Nonnull Class<?> clazz) {
         return getParents(clazz, Object.class);
     }
 
+    /**
+     * Gets all parents of a class, excluding interfaces
+     *
+     * @param clazz the class
+     * @return the parents
+     */
+    @Nonnull
+    public static List<Class<?>> getParentClasses(@Nonnull Class<?> clazz) {
+        return getParentClasses(clazz, Object.class);
+    }
+
+    /**
+     * Gets all parents of a class to the provided class, including interfaces
+     *
+     * @param clazz the class
+     * @param to    the final destination class
+     * @return the parents
+     */
     @Nonnull
     public static List<Class<?>> getParents(@Nonnull Class<?> clazz, @Nonnull Class<?> to) {
         List<Class<?>> parents = new ArrayList<>();
@@ -83,5 +122,22 @@ public class ClassUtils {
         return parents;
     }
 
+    /**
+     * Gets all parents of a class to the provided class, excluding interfaces
+     *
+     * @param clazz the class
+     * @param to    the final destination class
+     * @return the parents
+     */
+    @Nonnull
+    public static List<Class<?>> getParentClasses(@Nonnull Class<?> clazz, @Nonnull Class<?> to) {
+        List<Class<?>> parents = new ArrayList<>();
+        do {
+            parents.add(clazz);
+            clazz = clazz.getSuperclass();
+        } while (!to.equals(clazz));
+
+        return parents;
+    }
 
 }

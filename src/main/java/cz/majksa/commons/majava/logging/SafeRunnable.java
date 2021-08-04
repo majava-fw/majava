@@ -28,11 +28,22 @@ package cz.majksa.commons.majava.logging;
 @FunctionalInterface
 public interface SafeRunnable<T extends Throwable> extends SafeConsumer<Void, T> {
 
+    /**
+     * The wrapper method for {@link #execute()}
+     *
+     * @param param unused param
+     * @throws T the exception thrown
+     */
     @Override
     default void execute(Void param) throws T {
         execute();
     }
 
+    /**
+     * The main method that may throw a throwable
+     *
+     * @throws T the exception thrown
+     */
     void execute() throws T;
 
 }

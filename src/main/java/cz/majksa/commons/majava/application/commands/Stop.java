@@ -47,7 +47,7 @@ public class Stop extends CliCommand {
     @Override
     protected void onCommand(@Nonnull CommandLine commandLine) throws ConsoleRuntimeException {
         try {
-            application.exit();
+            application.stop();
             consoleMessenger
                     .modify(ConsoleModifiers.RED)
                     .modify(ConsoleModifiers.BOLD)

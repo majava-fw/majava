@@ -21,7 +21,6 @@ package cz.majksa.commons.majava.listeners.eventhandlers;
 import cz.majksa.commons.majava.listeners.EntryPoint;
 import cz.majksa.commons.majava.listeners.EntryPointList;
 import cz.majksa.commons.majava.listeners.IListener;
-import cz.majksa.commons.majava.utils.AsyncUtils;
 import cz.majksa.commons.majava.utils.ClassUtils;
 
 import javax.annotation.Nonnull;
@@ -49,10 +48,22 @@ public interface EventsHandler<E> {
     @Nonnull
     Map<Class<? extends E>, EntryPointList<? extends E>> getEntryPointsMap();
 
+    /**
+     * Starts the handler
+     */
     void start();
 
+    /**
+     * Stop the handler
+     */
     void stop();
 
+    /**
+     * Runs the event
+     *
+     * @param event the event to be run
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     default CompletableFuture<Void> runEvent(@Nonnull E event) {
         return CompletableFuture.allOf(
@@ -64,16 +75,42 @@ public interface EventsHandler<E> {
         );
     }
 
+    /**
+     * Creates a new listener
+     *
+     * @param clazz     the class of the event
+     * @param callback  the callback of the listener
+     * @param predicate the condition of the listener
+     * @return the created listener
+     */
     @Nonnull
     default <T extends E> EntryPoint<T> prepare(@Nonnull Class<T> clazz, @Nonnull Function<T, CompletableFuture<Void>> callback, @Nonnull Predicate<T> predicate) {
         return prepare(get(clazz), clazz, callback, predicate);
     }
 
+    /**
+     * Creates a new listener
+     *
+     * @param entryPointList the list to register
+     * @param clazz          the class of the event
+     * @param callback       the callback of the listener
+     * @param predicate      the condition of the listener
+     * @param <T>            the event type
+     * @return the created listener
+     */
     @Nonnull
     default <T extends E> EntryPoint<T> prepare(@Nonnull EntryPointList<T> entryPointList, @Nonnull Class<T> clazz, @Nonnull Function<T, CompletableFuture<Void>> callback, @Nonnull Predicate<T> predicate) {
         return entryPointList.prepare(clazz, callback, predicate);
     }
 
+    /**
+     * Run the event inside the provided entry point list
+     *
+     * @param entryPointList the provided
+     * @param event          the event to be run
+     * @param <T>            the type of the entry point list
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     @SuppressWarnings("unchecked")
     default <T extends E> CompletableFuture<Void> run(@Nonnull EntryPointList<T> entryPointList, @Nonnull E event) {

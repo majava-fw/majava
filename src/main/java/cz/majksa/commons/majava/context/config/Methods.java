@@ -82,8 +82,8 @@ public class Methods implements Map<String, Method>, Serializable {
         return map.get(key);
     }
 
-    public Method put(Method method) {
-        return put(
+    public void put(Method method) {
+        put(
                 Arrays.stream(method.getParameterTypes())
                         .map(Class::getName)
                         .collect(Collectors.joining(",")),

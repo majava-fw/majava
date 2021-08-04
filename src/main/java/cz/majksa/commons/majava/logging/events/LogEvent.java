@@ -21,7 +21,6 @@ see <https://www.gnu.org/licenses/>.
 
 package cz.majksa.commons.majava.logging.events;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
@@ -48,6 +47,16 @@ public interface LogEvent {
 
     Throwable getThrowable();
 
+    /**
+     * Creates a new event from the given parameters
+     *
+     * @param level     {@link #getLevel()}
+     * @param marker    {@link #getMarker()}
+     * @param location  {@link #getLocation()}
+     * @param message   {@link #getMessage()}
+     * @param throwable {@link #getThrowable()}
+     * @return {@link cz.majksa.commons.majava.logging.events.LogEvent}
+     */
     static LogEvent from(@Nonnull Level level, Marker marker, StackTraceElement location, Message message, Throwable throwable) {
         if (Level.OFF.equals(level)) {
             return null;

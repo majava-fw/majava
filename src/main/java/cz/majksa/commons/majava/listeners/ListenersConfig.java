@@ -38,6 +38,11 @@ public class ListenersConfig extends ModuleConfig {
 
     private final List<Class<?>> handlers;
 
+    /**
+     * Constructor
+     *
+     * @param node the raw node
+     */
     public ListenersConfig(@Nonnull ConfigNode node) {
         super(node);
         handlers = node.getOrDefault("handlers", new ArrayList<>());

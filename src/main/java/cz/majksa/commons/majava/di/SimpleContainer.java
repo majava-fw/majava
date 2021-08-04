@@ -36,20 +36,36 @@ public class SimpleContainer implements Container {
 
     private final Map<String, Object> database = new HashMap<>();
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param key the object key
+     * @param <T> the object type
+     * @return the object
+     * @throws NullPointerException if object does not exist
+     */
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T get(@Nonnull String alias, @Nonnull Class<T> clazz) throws NullPointerException {
-        final T t = (T) database.get(alias);
+    public <T> T get(@Nonnull String key) throws NullPointerException {
+        final T t = (T) database.get(key);
         if (t == null) {
-            throw new NullPointerException(alias);
+            throw new NullPointerException(key);
         }
         return t;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param key    the object key
+     * @param object the object
+     */
+    @Nonnull
     @Override
-    public void register(@Nonnull String alias, @Nonnull Object object) {
-        database.put(alias, object);
+    public Container register(@Nonnull String key, @Nonnull Object object) {
+        database.put(key, object);
+        return this;
     }
 
 }

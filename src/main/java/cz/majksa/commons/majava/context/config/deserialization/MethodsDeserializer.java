@@ -43,6 +43,14 @@ public class MethodsDeserializer extends StdDeserializer<Methods> {
         super(Methods.class);
     }
 
+    /**
+     * Deserializes the provided json to {@link cz.majksa.commons.majava.context.config.Methods}
+     *
+     * @param p    the parser
+     * @param ctxt the context
+     * @return the parse {@link cz.majksa.commons.majava.context.config.Methods}
+     * @throws IOException if an error occurs while parsing
+     */
     @Override
     public Methods deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         final String raw = p.getText();

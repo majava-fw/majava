@@ -18,7 +18,6 @@
 
 package cz.majksa.commons.majava.listeners;
 
-import cz.majksa.commons.majava.application.Application;
 import lombok.NonNull;
 
 import java.util.ArrayList;

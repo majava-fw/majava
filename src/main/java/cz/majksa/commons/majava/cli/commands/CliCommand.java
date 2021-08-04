@@ -42,15 +42,26 @@ public abstract class CliCommand {
     @Nonnull
     protected final String name;
 
+    /**
+     * The full name of command in the format of <b>group:command</b>
+     *
+     * @see cz.majksa.commons.majava.cli.commands.CommandsGroup
+     */
     @Nonnull
     protected final String route;
 
     @Nonnull
     protected final String description;
 
+    /**
+     * The console messenger
+     */
     @Nonnull
     protected final ConsoleTextBuilder consoleMessenger = new ConsoleTextBuilder();
 
+    /**
+     * The cli command options
+     */
     @Nonnull
     protected final Options options = new Options()
             .addOption("h", "help", false, "shows this message");
@@ -65,6 +76,12 @@ public abstract class CliCommand {
         this.description = description;
     }
 
+    /**
+     * Runs the command
+     *
+     * @param args arguments for this command
+     * @throws ConsoleRuntimeException the runtime exception
+     */
     public void run(@Nonnull String[] args) throws ConsoleRuntimeException {
         try {
             final CommandLine commandLine = new DefaultParser().parse(options, args);
@@ -74,12 +91,21 @@ public abstract class CliCommand {
                 onCommand(commandLine);
             }
         } catch (ParseException e) {
-            throw new ConsoleRuntimeException(e);
+            throw new ConsoleRuntimeException(e.getMessage());
         }
     }
 
+    /**
+     * Executes the command
+     *
+     * @param commandLine the parsed command
+     * @throws ConsoleRuntimeException the runtime exception
+     */
     protected abstract void onCommand(@Nonnull CommandLine commandLine) throws ConsoleRuntimeException;
 
+    /**
+     * Prints the help for this command
+     */
     public void help() {
         new HelpFormatter().printHelp(ConsoleTextBuilder.WIDTH, route, null, options, null);
     }

@@ -18,7 +18,6 @@
 
 package cz.majksa.commons.majava.modules;
 
-import cz.majksa.commons.majava.application.Application;
 import cz.majksa.commons.majava.logging.LoggingModule;
 
 import javax.annotation.Nonnull;
@@ -44,11 +43,21 @@ public final class ModulesStarter {
     private final Map<Class<? extends Module<? extends ModuleConfig>>, List<Class<? extends Module<? extends ModuleConfig>>>> modulesDependencies = new HashMap<>();
     private final Function<Throwable, Void> logFunction;
 
+    /**
+     * Constructor
+     *
+     * @param modules the modules to be started
+     */
     public ModulesStarter(@Nonnull Modules modules) {
         this.modules = modules.getMap();
         logFunction = modules.get(LoggingModule.class).getLogFunction();
     }
 
+    /**
+     * Starts all modules
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     public CompletableFuture<Void> start() {
         return CompletableFuture.allOf(
@@ -59,6 +68,11 @@ public final class ModulesStarter {
         );
     }
 
+    /**
+     * Shuts down all modules
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     public CompletableFuture<Void> shutdown() {
         return CompletableFuture.allOf(
@@ -69,16 +83,35 @@ public final class ModulesStarter {
         );
     }
 
+    /**
+     * Starts the provided module
+     *
+     * @param module the module class
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     public CompletableFuture<Void> start(Class<? extends Module<? extends ModuleConfig>> module) {
         return start(modules.get(module));
     }
 
+
+    /**
+     * Shuts down the provided module
+     *
+     * @param module the module class
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     public CompletableFuture<Void> shutdown(Class<? extends Module<? extends ModuleConfig>> module) {
         return shutdown(modules.get(module));
     }
 
+    /**
+     * Starts the module and it's dependencies
+     *
+     * @param module the module to be started
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     private CompletableFuture<Void> start(@Nonnull Module<? extends ModuleConfig> module) {
         if (module.isRunning()) {
@@ -99,6 +132,12 @@ public final class ModulesStarter {
         return module.start().exceptionally(logFunction);
     }
 
+    /**
+     * Shuts down the module and modules it depends on
+     *
+     * @param module the module to be started
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     private CompletableFuture<Void> shutdown(@Nonnull Module<? extends ModuleConfig> module) {
         if (!module.isRunning()) {

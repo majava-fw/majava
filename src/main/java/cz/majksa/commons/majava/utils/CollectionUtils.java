@@ -31,9 +31,17 @@ import java.util.Map;
  */
 public class CollectionUtils {
 
+    /**
+     * Merges the provided maps
+     *
+     * @param maps the provided maps
+     * @param <K>  the type of keys
+     * @param <V>  the type of values
+     * @return the merged map
+     */
     @Nonnull
     @SafeVarargs
-    public static  <K, V> Map<K, V> mergeMaps(@Nonnull Map<K, V>... maps) {
+    public static <K, V> Map<K, V> mergeMaps(@Nonnull Map<K, V>... maps) {
         final HashMap<K, V> finalMap = new HashMap<>();
         for (Map<K, V> map : maps) {
             finalMap.putAll(map);

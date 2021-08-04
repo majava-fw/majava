@@ -43,6 +43,11 @@ public class LoggingConfig extends ModuleConfig {
     private final String name;
     private final boolean debug;
 
+    /**
+     * Constructor
+     *
+     * @param node the raw node
+     */
     public LoggingConfig(@Nonnull ConfigNode node) {
         super(node);
         name = node.getOrDefault("name", "Majava");

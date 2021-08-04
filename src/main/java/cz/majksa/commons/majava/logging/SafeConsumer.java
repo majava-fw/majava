@@ -38,6 +38,12 @@ public interface SafeConsumer<P, T extends Throwable> extends Function<P, T> {
      */
     void execute(P param) throws T;
 
+    /**
+     * Executes the function
+     *
+     * @param p the argument
+     * @return the throwable, null if ended without throwing a throwable
+     */
     @Override
     @Nullable
     @SuppressWarnings("unchecked")

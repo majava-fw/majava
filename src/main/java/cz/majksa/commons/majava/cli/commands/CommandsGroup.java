@@ -54,6 +54,12 @@ public final class CommandsGroup {
         return maxLength + name.length() + 1;
     }
 
+    /**
+     * Registers a command to this group
+     *
+     * @param command the command to be registered
+     * @return {@link cz.majksa.commons.majava.cli.commands.CommandsGroup}
+     */
     @Nonnull
     public CommandsGroup register(@Nonnull CliCommand command) {
         if (commands.containsKey(command.getName())) {

@@ -49,6 +49,14 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
         super(ApplicationConfig.class);
     }
 
+    /**
+     * Deserializes the provided json to {@link cz.majksa.commons.majava.context.config.ApplicationConfig}
+     *
+     * @param p    the parser
+     * @param ctxt the context
+     * @return the parse {@link cz.majksa.commons.majava.context.config.ApplicationConfig}
+     * @throws IOException if an error occurs while parsing
+     */
     @Override
     public ApplicationConfig deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         final ApplicationConfig config = new ApplicationConfig();

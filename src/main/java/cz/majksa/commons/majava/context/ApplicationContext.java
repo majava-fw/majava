@@ -53,6 +53,11 @@ public class ApplicationContext {
     @Nullable
     private final URI tmp;
 
+    /**
+     * Constructor
+     *
+     * @param config the config to be parsed
+     */
     public ApplicationContext(@Nonnull ApplicationConfig config) {
         this.name = config.getName();
         this.container = createContainer(config);

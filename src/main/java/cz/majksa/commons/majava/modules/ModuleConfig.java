@@ -33,6 +33,9 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public abstract class ModuleConfig {
 
+    /**
+     * The config node
+     */
     @Nonnull
     protected final ConfigNode node;
 

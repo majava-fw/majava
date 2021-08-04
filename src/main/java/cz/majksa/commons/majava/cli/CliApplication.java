@@ -59,14 +59,27 @@ public class CliApplication {
     private final ConsoleTextBuilder consoleMessenger = new ConsoleTextBuilder();
 
     @Nonnull
-    private final Thread hook = new Thread(executor::shutdown);
+    private final Thread hook;
     /**
      * If application has been started
      */
     private boolean running = false;
 
+    /**
+     * Constructor
+     *
+     * @param application the application
+     */
     public CliApplication(@Nonnull Application application) {
         this.application = application;
+        hook = new Thread(() -> {
+            if (application.isRunning()) {
+                application.stop();
+            }
+            if (!executor.isShutdown()) {
+                executor.shutdown();
+            }
+        });
         final CommandsGroup group = cliRunner.register("application", "application core commands");
         group
                 .register(new Start(group, application, this))
@@ -77,6 +90,9 @@ public class CliApplication {
         printWelcome();
     }
 
+    /**
+     * Starts the cli application listener for commands
+     */
     public void listen() {
         running = true;
         final Scanner scanner = new Scanner(System.in);
@@ -90,6 +106,11 @@ public class CliApplication {
         });
     }
 
+    /**
+     * Runs a command line input
+     *
+     * @param args the command line input
+     */
     public void run(@Nonnull String[] args) {
         try {
             if (args.length == 0 || (args.length == 1 && args[0].equals(""))) {
@@ -109,6 +130,9 @@ public class CliApplication {
         }
     }
 
+    /**
+     * Prints a welcome message
+     */
     private void printWelcome() {
         final int headingSpace = ConsoleTextBuilder.WIDTH - HEADING.length();
         consoleMessenger

@@ -22,12 +22,14 @@ import cz.majksa.commons.majava.cli.ConsoleModifiers;
 import cz.majksa.commons.majava.cli.ConsoleTextBuilder;
 import cz.majksa.commons.majava.context.ApplicationContext;
 import cz.majksa.commons.majava.listeners.ListenersModule;
+import cz.majksa.commons.majava.logging.events.LogEvent;
 import cz.majksa.commons.majava.modules.Module;
 import lombok.Getter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -51,16 +53,51 @@ public class LoggingModule extends Module<LoggingConfig> {
         return null;
     };
 
+    private final LogEventHandler handler;
+
     /**
      * If application has been started
      */
     private boolean debug = false;
 
+    /**
+     * Constructor
+     *
+     * @param config  the module config
+     * @param context the application context
+     */
     public LoggingModule(@Nonnull LoggingConfig config, @Nonnull ApplicationContext context) {
         super(config, context, "logging", "the module that takes care of logs");
         dependencies.add(ListenersModule.class);
-        logger = new Logger(LogManager.getLogger(config.getName()), config.getErrors(), logFunction);
+        handler = new LogEventHandler(logFunction);
+        logger = new Logger(LogManager.getLogger(config.getName()), config.getErrors(), handler);
         setDebug(config.isDebug());
+        context.getContainer()
+                .register(logFunction)
+                .register(handler)
+                .register(logger);
+    }
+
+    /**
+     * Executed on module start
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
+    @Nonnull
+    @Override
+    protected CompletableFuture<Void> onStart() {
+        return CompletableFuture.runAsync(() -> context.getModules().get(ListenersModule.class).registerHandler(LogEvent.class, handler));
+    }
+
+    /**
+     * Executed on module shutdown
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
+    @Nonnull
+    @Override
+    protected CompletableFuture<Void> onShutdown() {
+        return CompletableFuture.runAsync(() -> context.getModules().get(ListenersModule.class).unregisterHandler(LogEvent.class));
     }
 
     /**
@@ -106,8 +143,8 @@ public class LoggingModule extends Module<LoggingConfig> {
      * Logs the consumer using {@link Logger}
      *
      * @param consumer the consumer to be logged
-     * @param subject the subject to be consumed
-     * @param <T> the type of subject
+     * @param subject  the subject to be consumed
+     * @param <T>      the type of subject
      */
     public <T> void run(@Nonnull SafeConsumer<T, Throwable> consumer, @Nonnull T subject) {
         final Throwable throwable = consumer.apply(subject);

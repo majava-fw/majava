@@ -37,14 +37,4 @@ public class LogEventHandler extends AbstractEventsHandler<LogEvent> {
         super(LogEvent.class, loggingFunction);
     }
 
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
 }

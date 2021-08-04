@@ -19,7 +19,8 @@
 package cz.majksa.commons.majava.cli.commands;
 
 /**
- * <p><b>Class {@link ConsoleRuntimeException}</b></p>
+ * <p><b>Exception {@link ConsoleRuntimeException}</b></p>
+ * Thrown inside console commands and the message is then printed to the user.
  *
  * @author majksa
  * @version 1.0.0

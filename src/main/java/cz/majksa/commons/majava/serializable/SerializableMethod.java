@@ -46,6 +46,11 @@ public class SerializableMethod implements Serializable {
 
     private transient Method method;
 
+    /**
+     * Constructor
+     *
+     * @param method the method to be serialized
+     */
     public SerializableMethod(@Nonnull Method method) {
         this.method = method;
         clazz = method.getDeclaringClass();

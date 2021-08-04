@@ -41,11 +41,22 @@ public class ListenersModule extends Module<ListenersConfig> {
 
     private final Map<Class<?>, EventsHandler<?>> handlers = new HashMap<>();
 
+    /**
+     * Constructor
+     *
+     * @param config  the listeners config
+     * @param context the application context
+     */
     public ListenersModule(@Nonnull ListenersConfig config, @Nonnull ApplicationContext context) {
         super(config, context, "listeners", "listeners modules");
         config.getHandlers().forEach(this::registerHandler);
     }
 
+    /**
+     * Creates and registers a handler
+     *
+     * @param clazz the class of the handler
+     */
     private void registerHandler(@NonNull Class<?> clazz) {
         EventsHandler<?> handler;
         try {
@@ -57,31 +68,63 @@ public class ListenersModule extends Module<ListenersConfig> {
                 throw new NullPointerException(clazz.getName());
             }
         }
-        handlers.put(clazz, handler);
+        handlers.put(handler.getRootEvent(), handler);
     }
 
+    /**
+     * Starts all handlers
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     @Override
     protected CompletableFuture<Void> onStart() {
         return CompletableFuture.runAsync(() -> handlers.values().forEach(EventsHandler::start));
     }
 
+    /**
+     * Shuts down all handlers
+     *
+     * @return {@link java.util.concurrent.CompletableFuture}
+     */
     @Nonnull
     @Override
     protected CompletableFuture<Void> onShutdown() {
         return CompletableFuture.runAsync(() -> handlers.values().forEach(EventsHandler::start));
     }
 
+    /**
+     * Creates a new listener
+     *
+     * @param clazz     the class of the event
+     * @param callback  the callback of the listener
+     * @param predicate the condition of the listener
+     * @return {@link cz.majksa.commons.majava.listeners.EntryPoint}
+     */
     @Nonnull
     public <T> EntryPoint<T> prepare(@Nonnull Class<T> clazz, @Nonnull Function<T, CompletableFuture<Void>> callback, @Nonnull Predicate<T> predicate) {
         return searchHandler(clazz).prepare(clazz, callback, predicate);
     }
 
+    /**
+     * Gets the event handler by the root event class
+     *
+     * @param clazz the root event class
+     * @param <T>   the root event type
+     * @return {@link cz.majksa.commons.majava.listeners.eventhandlers.EventsHandler}
+     */
     @SuppressWarnings("unchecked")
     public <T> @NonNull EventsHandler<T> getHandler(@NonNull Class<T> clazz) {
         return (EventsHandler<T>) handlers.get(clazz);
     }
 
+    /**
+     * Searches for the event handler by an event class
+     *
+     * @param clazz the event class
+     * @param <T>   the root event type
+     * @return {@link cz.majksa.commons.majava.listeners.eventhandlers.EventsHandler}
+     */
     @SuppressWarnings("unchecked")
     public <T> @NonNull EventsHandler<T> searchHandler(@NonNull Class<?> clazz) {
         return handlers
@@ -93,6 +136,15 @@ public class ListenersModule extends Module<ListenersConfig> {
                 .orElseThrow(NullPointerException::new);
     }
 
+
+    /**
+     * Registers the event handler
+     *
+     * @param clazz   the root event class
+     * @param handler the handler itself
+     * @param <T>     the root event type
+     * @return {@link cz.majksa.commons.majava.listeners.ListenersModule}
+     */
     public <T> @NonNull ListenersModule registerHandler(@NonNull Class<T> clazz, @NonNull EventsHandler<T> handler) {
         handlers.put(clazz, handler);
         if (running) {
@@ -101,12 +153,31 @@ public class ListenersModule extends Module<ListenersConfig> {
         return this;
     }
 
+    /**
+     * Unregisters the event handler
+     *
+     * @param clazz the root event class
+     * @param <T>   the root event type
+     * @return {@link cz.majksa.commons.majava.listeners.ListenersModule}
+     */
     public <T> @NonNull ListenersModule unregisterHandler(@NonNull Class<T> clazz) {
         final EventsHandler<?> handler = handlers.remove(clazz);
         if (running) {
             handler.stop();
         }
         return this;
+    }
+
+    /**
+     * Loads a listener class and converts it into an {@link cz.majksa.commons.majava.listeners.EntryPoint}
+     *
+     * @param listener the listener to be loaded
+     * @param <T>      the event type the listener listens to
+     * @return the created {@link cz.majksa.commons.majava.listeners.EntryPoint}
+     */
+    @Nonnull
+    public <T> EntryPoint<T> loadListener(@Nonnull IListener<T> listener) {
+        return prepare(listener.getEventClass(), listener::run, listener::check);
     }
 
 }

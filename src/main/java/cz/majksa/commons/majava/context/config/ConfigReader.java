@@ -32,13 +32,11 @@ import cz.majksa.commons.majava.modules.ModuleConfig;
 import cz.majksa.commons.majava.utils.CollectionUtils;
 import cz.majksa.commons.majava.utils.LambaUtils;
 import lombok.Getter;
-import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +55,7 @@ import java.util.stream.Collectors;
 public class ConfigReader {
 
     public static final HashMap<String, Class<? extends Module<? extends ModuleConfig>>> defaultModules = new HashMap<>();
+    public static final SimpleModule mapperModule = new SimpleModule();
 
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -69,15 +68,20 @@ public class ConfigReader {
     private final ObjectReader reader;
 
     static {
-        final SimpleModule module = new SimpleModule();
-        module.addDeserializer(Methods.class, new MethodsDeserializer());
-        module.addDeserializer(URI.class, new URIDeserializer());
-        module.addDeserializer(ApplicationConfig.class, new ApplicationConfigDeserializer());
-        mapper.registerModule(module);
+        mapperModule.addDeserializer(Methods.class, new MethodsDeserializer());
+        mapperModule.addDeserializer(URI.class, new URIDeserializer());
+        mapperModule.addDeserializer(ApplicationConfig.class, new ApplicationConfigDeserializer());
+        mapper.registerModule(mapperModule);
         defaultModules.put("listeners", ListenersModule.class);
         defaultModules.put("logging", LoggingModule.class);
     }
 
+    /**
+     * Constructor
+     *
+     * @param file the file to be read
+     * @throws IOException if an exception occurs when reading
+     */
     public ConfigReader(@Nonnull File file) throws IOException {
         config = mapper.readValue(file, ApplicationConfig.class);
         config.setModules(CollectionUtils.mergeMaps(defaultModules, config.getModules()));
@@ -94,6 +98,9 @@ public class ConfigReader {
         checkConfigOptions();
     }
 
+    /**
+     * Makes sure that there are no unexpected options inside the config
+     */
     private void checkConfigOptions() {
         final Set<String> moduleKeys = new HashSet<>(config.getModuleConfigs().keySet());
         moduleKeys.removeAll(config.getModules().keySet());
@@ -102,6 +109,13 @@ public class ConfigReader {
         }
     }
 
+    /**
+     * Reads provided config files
+     *
+     * @param current the current file to allow relative paths
+     * @param files   the list of file paths
+     * @throws IOException if an exception occurs when reading
+     */
     private void read(@Nonnull File current, @Nonnull List<String> files) throws IOException {
         for (String file : files) {
             final File fileToRead = file.startsWith("/") ? new File(file.substring(1)) : new File(current.getParent(), file);
@@ -115,16 +129,37 @@ public class ConfigReader {
         }
     }
 
+    /**
+     * Read the provided file
+     *
+     * @param file the file
+     * @return the generated config
+     * @throws IOException if an exception occurs when reading
+     */
     @Nonnull
     public static ApplicationConfig read(@Nonnull File file) throws IOException {
         return new ConfigReader(file).config;
     }
 
+    /**
+     * Read the provided file
+     *
+     * @param file the file
+     * @return the generated config
+     * @throws IOException if an exception occurs when reading
+     */
     @Nonnull
     public static ApplicationConfig read(@Nonnull String file) throws IOException {
         return read(new File(file));
     }
 
+    /**
+     * Read the provided file
+     *
+     * @param url the file url
+     * @return the generated config
+     * @throws IOException if an exception occurs when reading
+     */
     @Nonnull
     public static ApplicationConfig read(@Nonnull URL url) throws IOException {
         return read(url.getFile());

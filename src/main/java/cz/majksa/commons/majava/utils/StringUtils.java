@@ -29,6 +29,13 @@ import javax.annotation.Nonnull;
  */
 public class StringUtils {
 
+    /**
+     * Repeats the string provided amount of times
+     *
+     * @param text   the text to be repeated
+     * @param amount the amount of repetitions
+     * @return the repeated string
+     */
     @Nonnull
     public static String repeat(@Nonnull String text, int amount) {
         final StringBuilder builder = new StringBuilder();
