@@ -18,15 +18,11 @@
 
 package cz.majksa.commons.majava.application;
 
-import cz.majksa.commons.majava.cli.ConsoleModifiers;
-import cz.majksa.commons.majava.cli.ConsoleTextBuilder;
 import cz.majksa.commons.majava.context.ApplicationContext;
 import cz.majksa.commons.majava.logging.Logger;
-import cz.majksa.commons.majava.logging.SafeRunnable;
+import cz.majksa.commons.majava.logging.LoggingModule;
 import cz.majksa.commons.majava.modules.Modules;
 import lombok.Getter;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nonnull;
 
@@ -44,36 +40,27 @@ public final class Application {
      * @see cz.majksa.commons.majava.logging.Logger
      */
     @Nonnull
-    private final Logger logger = new Logger(LogManager.getLogger("Majava"));
+    private final Logger logger;
 
     @Nonnull
     private final String name;
 
     @Nonnull
     private final ApplicationContext context;
+
+    @Nonnull
+    private final Modules modules;
+
     /**
      * If application has been started
      */
     private boolean running = false;
 
-    /**
-     * If application has been started
-     */
-    private boolean debug = false;
-
-    public Application(@Nonnull String name, @Nonnull ApplicationContext context, Modules modules) {
+    public Application(@Nonnull String name, @Nonnull ApplicationContext context, @Nonnull Modules modules) {
         this.name = name;
         this.context = context;
-
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-        logger.setLevel(debug ? Level.DEBUG : Level.ERROR);
-    }
-
-    public void toggleDebug() {
-        setDebug(!debug);
+        this.modules = modules;
+        logger = modules.get(LoggingModule.class).getLogger();
     }
 
     /**
@@ -88,7 +75,8 @@ public final class Application {
         context
                 .getModulesStarter()
                 .start()
-                .exceptionally(this::log);
+                .exceptionally(modules.get(LoggingModule.class).getLogFunction())
+                .join();
     }
 
     public void restart() {
@@ -109,41 +97,7 @@ public final class Application {
         context
                 .getModulesStarter()
                 .shutdown()
-                .exceptionally(this::log);
-    }
-
-    /**
-     * Logs the throwable using {@link cz.majksa.commons.majava.logging.Logger}
-     *
-     * @param throwable the throwable to be logged
-     */
-    public Void log(@Nonnull Throwable throwable) {
-        final ConsoleTextBuilder textBuilder = new ConsoleTextBuilder();
-        textBuilder
-                .modify(ConsoleModifiers.BLACK)
-                .modify(ConsoleModifiers.RED_BACKGROUND)
-                .append("An error internal error occurred!")
-                .newLine()
-                .modify(ConsoleModifiers.RED)
-                .append(throwable.getMessage())
-                .print();
-        logger.atError()
-                .withLocation()
-                .withThrowable(throwable)
-                .log(throwable);
-        return null;
-    }
-
-    /**
-     * Logs the runnable using {@link cz.majksa.commons.majava.logging.Logger}
-     *
-     * @param runnable the runnable to be logged
-     */
-    public void run(@Nonnull SafeRunnable<Throwable> runnable) {
-        final Throwable throwable = runnable.apply(null);
-        if (throwable != null) {
-            log(throwable);
-        }
+                .join();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.modules.ModuleConfig
+ *  majava - cz.majksa.commons.majava.listeners.eventhandlers.AbstractEventsHandler
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.modules;
+package cz.majksa.commons.majava.listeners.eventhandlers;
 
-import cz.majksa.commons.majava.context.config.ConfigNode;
+import cz.majksa.commons.majava.listeners.EntryPointList;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
+ * <p><b>Class {@link AbstractEventsHandler}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
+@Getter
 @RequiredArgsConstructor
-public abstract class ModuleConfig {
+public abstract class AbstractEventsHandler<E> implements EventsHandler<E> {
 
     @Nonnull
-    protected final ConfigNode node;
+    protected final Class<E> rootEvent;
+
+    @Nonnull
+    protected final Function<Throwable, Void> loggingFunction;
+
+    /**
+     * The entry points are registered here.
+     *
+     * @see cz.majksa.commons.majava.listeners.EntryPointList
+     */
+    @Nonnull
+    protected final Map<Class<? extends E>, EntryPointList<? extends E>> entryPointsMap = new HashMap<>();
 
 }

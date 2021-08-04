@@ -1,5 +1,5 @@
 /*
- *  majbot - cz.majksa.majbot.utils.ConfigUtils
+ *  majava - cz.majksa.commons.majava.logging.events.DebugLogEvent
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,32 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.utils;
+package cz.majksa.commons.majava.logging.events;
 
-import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.message.Message;
 
 /**
- * <p><b>Class {@link cz.majksa.commons.majava.utils.ConfigUtils}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.logging.events.DebugLogEvent}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ConfigUtils {
+public class DebugLogEvent extends AbstractLogEvent {
 
-    @Nonnull
-    public static Class<?> toClass(@Nonnull String raw) throws ClassNotFoundException {
-        return Class.forName(raw);
+    public DebugLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
+        super(Level.DEBUG, marker, location, message, throwable);
     }
-
-    @Nonnull
-    public static Method toClassMethod(@Nonnull String raw, Class<?>... parameterTypes) throws ClassNotFoundException, NoSuchMethodException {
-        String[] parts = raw.split("::");
-        Class<?> clazz = toClass(parts[0]);
-        return clazz.getDeclaredMethod(parts[1], parameterTypes);
-    }
-
-
 
 }

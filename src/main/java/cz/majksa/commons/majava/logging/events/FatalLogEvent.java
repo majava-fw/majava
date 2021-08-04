@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.modules.ModuleConfig
+ *  majava - cz.majksa.commons.majava.logging.events.DebugLogEvent
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.modules;
+package cz.majksa.commons.majava.logging.events;
 
-import cz.majksa.commons.majava.context.config.ConfigNode;
-import lombok.RequiredArgsConstructor;
-
-import javax.annotation.Nonnull;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.message.Message;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.logging.events.FatalLogEvent}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@RequiredArgsConstructor
-public abstract class ModuleConfig {
+public class FatalLogEvent extends AbstractLogEvent {
 
-    @Nonnull
-    protected final ConfigNode node;
+    public FatalLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
+        super(Level.FATAL, marker, location, message, throwable);
+    }
 
 }

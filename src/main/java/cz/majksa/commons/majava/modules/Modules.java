@@ -19,7 +19,9 @@
 package cz.majksa.commons.majava.modules;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import cz.majksa.commons.majava.context.ApplicationContext;
+import cz.majksa.commons.majava.context.config.ConfigNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +71,10 @@ public final class Modules {
         final Constructor<?> constructor = constructors.get(0);
         final Class<?> configClass = constructor.getParameterTypes()[0];
         try {
-            final Object config = configClass.getConstructor(JsonNode.class).newInstance(node);
+            final Object config = configClass.getConstructor(ConfigNode.class).newInstance(new ConfigNode(node));
             return (Module<? extends ModuleConfig>) constructor.newInstance(config, context);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            throw new IllegalArgumentException(String.format("There must be a public constructor with a single argument %s in the config class: %s", JsonNode.class, configClass));
+            throw new IllegalArgumentException(String.format("There must be a public constructor with a single argument %s in the config class: %s", ConfigNode.class, configClass));
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e.getCause());
         }

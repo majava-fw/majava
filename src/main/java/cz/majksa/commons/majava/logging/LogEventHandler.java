@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.modules.ModuleConfig
+ *  majava - cz.majksa.commons.majava.logging.LogListener
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.modules;
+package cz.majksa.commons.majava.logging;
 
-import cz.majksa.commons.majava.context.config.ConfigNode;
-import lombok.RequiredArgsConstructor;
+import cz.majksa.commons.majava.listeners.eventhandlers.AbstractEventsHandler;
+import cz.majksa.commons.majava.logging.events.LogEvent;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
+ * <p><b>Class {@link LogEventHandler}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@RequiredArgsConstructor
-public abstract class ModuleConfig {
+public class LogEventHandler extends AbstractEventsHandler<LogEvent> {
 
-    @Nonnull
-    protected final ConfigNode node;
+    public LogEventHandler(@Nonnull Function<Throwable, Void> loggingFunction) {
+        super(LogEvent.class, loggingFunction);
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
 
 }

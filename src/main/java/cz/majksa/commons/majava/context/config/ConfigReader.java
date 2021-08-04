@@ -26,6 +26,7 @@ import cz.majksa.commons.majava.context.config.deserialization.ApplicationConfig
 import cz.majksa.commons.majava.context.config.deserialization.MethodsDeserializer;
 import cz.majksa.commons.majava.context.config.deserialization.URIDeserializer;
 import cz.majksa.commons.majava.listeners.ListenersModule;
+import cz.majksa.commons.majava.logging.LoggingModule;
 import cz.majksa.commons.majava.modules.Module;
 import cz.majksa.commons.majava.modules.ModuleConfig;
 import cz.majksa.commons.majava.utils.CollectionUtils;
@@ -74,6 +75,7 @@ public class ConfigReader {
         module.addDeserializer(ApplicationConfig.class, new ApplicationConfigDeserializer());
         mapper.registerModule(module);
         defaultModules.put("listeners", ListenersModule.class);
+        defaultModules.put("logging", LoggingModule.class);
     }
 
     public ConfigReader(@Nonnull File file) throws IOException {

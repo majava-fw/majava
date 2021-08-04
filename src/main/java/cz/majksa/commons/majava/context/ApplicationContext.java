@@ -44,37 +44,21 @@ public class ApplicationContext {
 
     @Nonnull
     private final String name;
-    private final boolean debug;
     @Nonnull
     private final Container container;
     @Nonnull
-    private final Modules modules = new Modules();
+    private final Modules modules;
     @Nonnull
     private final ModulesStarter modulesStarter;
     @Nullable
     private final URI tmp;
 
-    public ApplicationContext(@Nonnull String name, boolean debug, @Nonnull Container container, @Nullable URI tmp) {
-        this.name = name;
-        this.debug = debug;
-        this.container = container;
+    public ApplicationContext(@Nonnull ApplicationConfig config) {
+        this.name = config.getName();
+        this.container = createContainer(config);
+        this.modules = loadModules(config);
         this.modulesStarter = new ModulesStarter(modules);
-        this.tmp = tmp;
-    }
-
-    /**
-     * Creates {@link cz.majksa.commons.majava.context.ApplicationContext} from {@link cz.majksa.commons.majava.context.config.ApplicationConfig}
-     *
-     * @param config the application config
-     * @return {@link cz.majksa.commons.majava.context.ApplicationContext}
-     */
-    public static ApplicationContext from(@Nonnull ApplicationConfig config) {
-        return new ApplicationContext(
-                config.getName(),
-                config.isDebug(),
-                createContainer(config),
-                config.getTmp()
-        ).loadModules(config);
+        this.tmp = config.getTmp();
     }
 
     /**
@@ -84,7 +68,7 @@ public class ApplicationContext {
      * @return the container
      */
     @Nonnull
-    private static Container createContainer(@Nonnull ApplicationConfig config) {
+    private Container createContainer(@Nonnull ApplicationConfig config) {
         if (config.getDi() == null) {
             return new SimpleContainer();
         } else {
@@ -103,10 +87,11 @@ public class ApplicationContext {
      * @return {@link cz.majksa.commons.majava.context.ApplicationContext}
      */
     @Nonnull
-    private ApplicationContext loadModules(@Nonnull ApplicationConfig config) {
+    private Modules loadModules(@Nonnull ApplicationConfig config) {
         final Map<String, JsonNode> configs = config.getModuleConfigs();
+        final Modules modules = new Modules();
         config.getModules().forEach((name, clazz) -> modules.add(modules.create(this, clazz, configs.get(name))));
-        return this;
+        return modules;
     }
 
 }

@@ -30,10 +30,10 @@ import javax.annotation.Nonnull;
 public interface Container {
 
     @Nonnull
-    <T> T get(@Nonnull String alias, @Nonnull Class<T> clazz);
+    <T> T get(@Nonnull String alias, @Nonnull Class<T> clazz) throws NullPointerException;
 
     @Nonnull
-    default <T> T get(@Nonnull Class<T> clazz) {
+    default <T> T get(@Nonnull Class<T> clazz) throws NullPointerException {
         return get(clazz.getName(), clazz);
     }
 

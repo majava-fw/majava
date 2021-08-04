@@ -19,74 +19,49 @@
 package cz.majksa.commons.majava.logging;
 
 import cz.majksa.commons.majava.logging.errors.ErrorsSaver;
+import cz.majksa.commons.majava.logging.errors.FileErrorsSaver;
+import cz.majksa.commons.majava.logging.events.LogEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.net.URI;
+import java.util.function.Function;
 
 /**
- * <p><b>Class {@link cz.majksa.commons.majava.logging.Logger}</b></p>
+ * <p><b>Class {@link Logger}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@RequiredArgsConstructor
 public class Logger {
 
     @Getter(AccessLevel.MODULE)
     private final org.apache.logging.log4j.Logger logger;
-    @Getter
-    private final List<LogListener> listeners = new ArrayList<>();
-    private final Collection<ErrorsSaver> errorsSavers = new HashSet<>();
+    @Nullable
+    private final ErrorsSaver errorsSaver;
+    private final LogEventHandler logEventHandler;
     @Setter
     private Level level = Level.ERROR;
 
-    /**
-     * Adds a listener
-     *
-     * @param listener the listener
-     */
-    public void registerListener(@NonNull LogListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * Removes a listener
-     *
-     * @param listener the listener
-     */
-    public void removeListener(@NonNull LogListener listener) {
-        listeners.remove(listener);
-    }
-
-    /**
-     * Adds an error saver
-     *
-     * @param errorsSaver the error saver to be added
-     */
-    public void addErrorsSaver(@NonNull ErrorsSaver errorsSaver) {
-        errorsSavers.add(errorsSaver);
-        errorsSaver.init();
-    }
-
-    /**
-     * Removes an error saver
-     *
-     * @param errorsSaver the error saver to be removed
-     */
-    public void removeErrorsSaver(@NonNull ErrorsSaver errorsSaver) {
-        errorsSavers.remove(errorsSaver);
+    @SneakyThrows
+    public Logger(@Nonnull org.apache.logging.log4j.Logger logger, @Nullable URI errors, @Nonnull Function<Throwable, Void> loggingFunction) {
+        this.logger = logger;
+        logEventHandler = new LogEventHandler(loggingFunction);
+        if (errors == null) {
+            errorsSaver = null;
+        } else {
+            errorsSaver = new FileErrorsSaver(new File(errors));
+        }
     }
 
     /**
@@ -171,14 +146,17 @@ public class Logger {
      * @param throwable the {@code Throwable} to log, including its stack trace.
      */
     void logMessage(Level level, Marker marker, StackTraceElement location, Message message, Throwable throwable) {
-        if (level.isLessSpecificThan(this.level)) {
+        if (!level.isMoreSpecificThan(this.level)) {
             return;
         }
         logger.logMessage(level, marker, LogBuilderImpl.FQCN, location, message, throwable);
-        if (throwable != null) {
-            errorsSavers.forEach(errorsSaver -> errorsSaver.save(throwable));
+        final LogEvent event = LogEvent.from(level, marker, location, message, throwable);
+        if (event != null) {
+            logEventHandler.runEvent(event);
         }
-        listeners.forEach(listener -> listener.onEvent(level, marker, location, message, throwable));
+        if (throwable != null && errorsSaver != null) {
+            errorsSaver.save(throwable);
+        }
     }
 
 }

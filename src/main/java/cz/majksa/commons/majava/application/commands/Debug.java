@@ -23,6 +23,7 @@ import cz.majksa.commons.majava.cli.commands.CliCommand;
 import cz.majksa.commons.majava.cli.commands.CommandsGroup;
 import cz.majksa.commons.majava.cli.ConsoleModifiers;
 import cz.majksa.commons.majava.cli.commands.ConsoleRuntimeException;
+import cz.majksa.commons.majava.logging.LoggingModule;
 import org.apache.commons.cli.CommandLine;
 
 import javax.annotation.Nonnull;
@@ -37,24 +38,24 @@ import javax.annotation.Nonnull;
 public class Debug extends CliCommand {
 
     @Nonnull
-    private final Application application;
+    private final LoggingModule logging;
 
     public Debug(@Nonnull CommandsGroup group, @Nonnull Application application) {
         super(group,"debug", "toggles debug");
-        this.application = application;
+        logging = application.getModules().get(LoggingModule.class);
         options.addOption("s", "show", false, "shows the current value");
     }
 
     @Override
     protected void onCommand(@Nonnull CommandLine commandLine) throws ConsoleRuntimeException {
         if (!commandLine.hasOption('s')) {
-            application.toggleDebug();
+            logging.toggleDebug();
             consoleMessenger
                     .append("Debug has been toggled.")
                     .print();
         }
-        if (application.isDebug()) {
-            consoleMessenger
+        if (logging.isDebug()) {
+                    consoleMessenger
                     .modify(ConsoleModifiers.GREEN)
                     .append("Debug is enabled.")
                     .print();

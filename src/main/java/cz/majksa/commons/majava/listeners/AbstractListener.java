@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.modules.ModuleConfig
+ *  majava - cz.majksa.commons.majava.listeners.AbstractListener
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.modules;
+package cz.majksa.commons.majava.listeners;
 
-import cz.majksa.commons.majava.context.config.ConfigNode;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nonnull;
-
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.listeners.AbstractListener}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
+@Getter
 @RequiredArgsConstructor
-public abstract class ModuleConfig {
+public abstract class AbstractListener<T> implements IListener<T> {
 
-    @Nonnull
-    protected final ConfigNode node;
+    @NonNull
+    private final Class<T> eventClass;
 
 }

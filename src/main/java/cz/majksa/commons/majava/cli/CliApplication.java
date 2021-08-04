@@ -27,6 +27,7 @@ import cz.majksa.commons.majava.application.commands.Status;
 import cz.majksa.commons.majava.cli.commands.CliRunner;
 import cz.majksa.commons.majava.cli.commands.CommandsGroup;
 import cz.majksa.commons.majava.cli.commands.ConsoleRuntimeException;
+import cz.majksa.commons.majava.logging.LoggingModule;
 import cz.majksa.commons.majava.utils.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -84,7 +85,7 @@ public class CliApplication {
             while (running) {
                 String command = scanner.nextLine();
                 application.getLogger().atDebug().log("Executing: {}", command);
-                application.run(() -> run(command.split(" ")));
+                application.getModules().get(LoggingModule.class).run(() -> run(command.split(" ")));
             }
         });
     }

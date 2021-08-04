@@ -39,8 +39,12 @@ public class SimpleContainer implements Container {
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T get(@Nonnull String alias, @Nonnull Class<T> clazz) {
-        return (T) database.get(alias);
+    public <T> T get(@Nonnull String alias, @Nonnull Class<T> clazz) throws NullPointerException {
+        final T t = (T) database.get(alias);
+        if (t == null) {
+            throw new NullPointerException(alias);
+        }
+        return t;
     }
 
     @Override

@@ -21,7 +21,6 @@ package cz.majksa.commons.majava.logging;
 import lombok.Getter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.internal.DefaultLogBuilder;
 import org.apache.logging.log4j.message.Message;
@@ -45,10 +44,10 @@ public class LogBuilderImpl implements LogBuilder {
 
     static final String FQCN = DefaultLogBuilder.class.getName();
     private static final Message EMPTY_MESSAGE = new SimpleMessage("");
-    private static final Logger LOGGER = StatusLogger.getLogger();
+    private static final org.apache.logging.log4j.Logger LOGGER = StatusLogger.getLogger();
 
-    private final cz.majksa.commons.majava.logging.Logger logger;
-    private final Logger loggerApi;
+    private final Logger logger;
+    private final org.apache.logging.log4j.Logger loggerApi;
     private final long threadId = Thread.currentThread().getId();
     private Level level;
     private Marker marker;
@@ -56,7 +55,7 @@ public class LogBuilderImpl implements LogBuilder {
     private StackTraceElement location;
     private volatile boolean inUse;
 
-    public LogBuilderImpl(cz.majksa.commons.majava.logging.Logger logger, Level level) {
+    public LogBuilderImpl(Logger logger, Level level) {
         this.logger = logger;
         loggerApi = logger.getLogger();
         this.level = level;

@@ -18,7 +18,8 @@
 
 package cz.majksa.commons.majava.modules;
 
-import cz.majksa.commons.majava.utils.AsyncUtils;
+import cz.majksa.commons.majava.application.Application;
+import cz.majksa.commons.majava.logging.LoggingModule;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -26,9 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 /**
  * <p><b>Class {@link cz.majksa.commons.majava.modules.ModulesStarter}</b></p>
@@ -42,9 +42,11 @@ public final class ModulesStarter {
     @Nonnull
     private final Map<Class<? extends Module<? extends ModuleConfig>>, Module<? extends ModuleConfig>> modules;
     private final Map<Class<? extends Module<? extends ModuleConfig>>, List<Class<? extends Module<? extends ModuleConfig>>>> modulesDependencies = new HashMap<>();
+    private final Function<Throwable, Void> logFunction;
 
     public ModulesStarter(@Nonnull Modules modules) {
         this.modules = modules.getMap();
+        logFunction = modules.get(LoggingModule.class).getLogFunction();
     }
 
     @Nonnull
@@ -79,7 +81,7 @@ public final class ModulesStarter {
 
     @Nonnull
     private CompletableFuture<Void> start(@Nonnull Module<? extends ModuleConfig> module) {
-        if (module.isStarted()) {
+        if (module.isRunning()) {
             return module.getFuture();
         }
         final List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -94,12 +96,12 @@ public final class ModulesStarter {
             futures.add(start(dependency));
         }
         futures.forEach(CompletableFuture::join);
-        return module.start();
+        return module.start().exceptionally(logFunction);
     }
 
     @Nonnull
     private CompletableFuture<Void> shutdown(@Nonnull Module<? extends ModuleConfig> module) {
-        if (!module.isStarted()) {
+        if (!module.isRunning()) {
             return module.getFuture();
         }
         modulesDependencies.getOrDefault(module.getModuleClass(), Collections.emptyList())
@@ -107,7 +109,7 @@ public final class ModulesStarter {
                 .map(modules::get)
                 .map(this::shutdown)
                 .forEach(CompletableFuture::join);
-        return module.shutdown();
+        return module.shutdown().exceptionally(logFunction);
     }
 
 }

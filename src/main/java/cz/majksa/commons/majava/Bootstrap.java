@@ -40,7 +40,7 @@ public class Bootstrap {
 
     public static CliApplication boot(@Nullable String configFile) {
         final ApplicationConfig config = ApplicationConfig.load(configFile);
-        final ApplicationContext context = ApplicationContext.from(config);
+        final ApplicationContext context = new ApplicationContext(config);
         final Application application = new Application(context.getName(), context, context.getModules());
         return new CliApplication(application);
     }

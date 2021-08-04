@@ -1,5 +1,5 @@
 /*
- *  majava - cz.majksa.commons.majava.modules.ModuleConfig
+ *  majava - cz.majksa.commons.majava.listeners.ListenersConfig
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cz.majksa.commons.majava.modules;
+package cz.majksa.commons.majava.listeners;
 
 import cz.majksa.commons.majava.context.config.ConfigNode;
-import lombok.RequiredArgsConstructor;
+import cz.majksa.commons.majava.modules.ModuleConfig;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * <p><b>Interface {@link cz.majksa.commons.majava.modules.ModuleConfig}</b></p>
+ * <p><b>Class {@link cz.majksa.commons.majava.listeners.ListenersConfig}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-@RequiredArgsConstructor
-public abstract class ModuleConfig {
+@Getter
+public class ListenersConfig extends ModuleConfig {
 
-    @Nonnull
-    protected final ConfigNode node;
+    private final List<Class<?>> handlers;
+
+    public ListenersConfig(@Nonnull ConfigNode node) {
+        super(node);
+        handlers = node.getOrDefault("handlers", new ArrayList<>());
+    }
 
 }

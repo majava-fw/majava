@@ -20,9 +20,7 @@ package cz.majksa.commons.majava.modules;
 
 import cz.majksa.commons.majava.cli.commands.CommandsGroup;
 import cz.majksa.commons.majava.context.ApplicationContext;
-import cz.majksa.commons.majava.logging.Logger;
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -38,8 +36,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @Getter
 public abstract class Module<C extends ModuleConfig> {
-
-    protected static final Logger logger = new Logger(LogManager.getLogger());
 
     protected final List<Class<? extends Module<? extends ModuleConfig>>> dependencies = new ArrayList<>();
 
@@ -59,7 +55,7 @@ public abstract class Module<C extends ModuleConfig> {
     /**
      * If module has been started
      */
-    protected boolean started;
+    protected boolean running;
 
     protected CompletableFuture<Void> future;
 
@@ -81,13 +77,12 @@ public abstract class Module<C extends ModuleConfig> {
      */
     @Nonnull
     public final CompletableFuture<Void> start() {
-        logger.atDebug().log("Trying to start {}", name);
-        if (started) {
-            logger.atWarn().log("Application {} has already been started", name);
+        if (running) {
             return future;
         }
-        started = true;
-        return future = onStart();
+        running = true;
+        future = onStart();
+        return future;
     }
 
     /**
@@ -95,19 +90,22 @@ public abstract class Module<C extends ModuleConfig> {
      */
     @Nonnull
     public final CompletableFuture<Void> shutdown() {
-        logger.atDebug().log("Trying to stop {}", name);
-        if (!started) {
-            logger.atWarn().log("Module {} has not been started yet", name);
+        if (!running) {
             return future;
         }
-        started = false;
-        return future = onShutdown();
+        running = false;
+        future = onShutdown();
+        return future;
     }
 
     @Nonnull
-    protected abstract CompletableFuture<Void> onStart();
+    protected CompletableFuture<Void> onStart() {
+        return CompletableFuture.runAsync(() -> {});
+    }
 
     @Nonnull
-    protected abstract CompletableFuture<Void> onShutdown();
+    protected CompletableFuture<Void> onShutdown() {
+        return CompletableFuture.runAsync(() -> {});
+    }
 
 }

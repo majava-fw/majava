@@ -74,9 +74,4 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
         return config;
     }
 
-//    @SuppressWarnings("unchecked")
-//    private Map<String, Class<? extends Module<? extends ModuleConfig>>> getAsModules(@Nonnull JsonNode modules) {
-//        return (Map<String, ? extends Class<? extends Module<? extends ModuleConfig>>>) );
-//    }
-
 }

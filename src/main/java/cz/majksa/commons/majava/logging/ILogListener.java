@@ -23,13 +23,13 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
 
 /**
- * <p><b>Interface {@link LogListener}</b></p>
+ * <p><b>Interface {@link ILogListener}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface LogListener {
+public interface ILogListener {
 
     /**
      * Called whenever a message is logged

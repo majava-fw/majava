@@ -98,10 +98,6 @@ public class ApplicationConfig implements Config {
     public static ApplicationConfig load(@Nullable String config) {
         final URL url = loader.getResource(config == null ? "majava.yml" : config);
         if (url == null) {
-//            Application
-//                    .getLogger()
-//                    .atWarn()
-//                    .log("No config provided. Using default settings!");
             return new ApplicationConfig();
         }
         return ConfigReader.read(url);
