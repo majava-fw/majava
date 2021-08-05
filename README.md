@@ -1,14 +1,14 @@
 # Majava
-_[Majksa Commons](//github.com/majksa-commons)_
+_[Majava Framework](//github.com/majava-fw)_
 
 <p>
-    <a href="//github.com/majksa-commons/majava/releases"><img src="https://img.shields.io/github/v/release/majksa-commons/majava"></a>
-    <a href="https://jitpack.io/#majksa-commons/majava"><img src="https://img.shields.io/jitpack/v/majksa-commons/majava"></a>
-    <a href="//github.com/majksa-commons/majava/commits/main"><img src="https://img.shields.io/github/last-commit/majksa-commons/majava"></a>
-    <a href="//github.com/majksa-commons/majava/releases"><img src="https://img.shields.io/github/downloads/majksa-commons/majava/total"></a>
-    <a href="//github.com/majksa-commons/majava/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/majksa-commons/majava"></a>
-    <a href="//github.com/majksa-commons/majava"><img src="https://img.shields.io/github/languages/code-size/majksa-commons/majava"></a>
-    <a href="//github.com/majksa-commons/majava/issues"><img src="https://img.shields.io/github/issues-raw/majksa-commons/majava"></a>
+    <a href="//github.com/majava-fw/majava/releases"><img src="https://img.shields.io/github/v/release/majava-fw/majava"></a>
+    <a href="https://jitpack.io/#majava-fw/majava"><img src="https://img.shields.io/jitpack/v/majava-fw/majava"></a>
+    <a href="//github.com/majava-fw/majava/commits/main"><img src="https://img.shields.io/github/last-commit/majava-fw/majava"></a>
+    <a href="//github.com/majava-fw/majava/releases"><img src="https://img.shields.io/github/downloads/majava-fw/majava/total"></a>
+    <a href="//github.com/majava-fw/majava/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/majava-fw/majava"></a>
+    <a href="//github.com/majava-fw/majava"><img src="https://img.shields.io/github/languages/code-size/majava-fw/majava"></a>
+    <a href="//github.com/majava-fw/majava/issues"><img src="https://img.shields.io/github/issues-raw/majava-fw/majava"></a>
     <a href="//java.com"><img src="https://img.shields.io/badge/java-8-orange"></a>
 </p>
 
@@ -30,7 +30,7 @@ Java framework improving your experience developing any project in java.
 
 ## Installation
 Make sure to replace `%version%` with the latest version number, or a commit hash, e.g. `1.0.0`.
-You can find this library [HERE](https://jitpack.io/#majksa-commons/majava)
+You can find this library [HERE](https://jitpack.io/#majava-fw/majava)
 
 ###  Maven
 Register the repository
@@ -43,7 +43,7 @@ Register the repository
 Now add the dependency itself
 ```xml
 <dependency>
-    <groupId>com.github.majksa-commons</groupId>
+    <groupId>com.github.majava-fw</groupId>
     <artifactId>majava</artifactId>
     <version>%version%</version>
 </dependency>
@@ -58,7 +58,7 @@ repositories {
 Now add the dependency itself
 ```gradle
 dependencies {
-    implementation 'com.github.majksa-commons:majava:%version%'
+    implementation 'com.github.majava-fw:majava:%version%'
 }
 ```
 
@@ -94,11 +94,11 @@ Here is an example configuration structure:<br>
 **majava.yml**
 ```yaml
 name: Majksa's application
-di: cz.majksa.commons.majava.Example::di
+di: cz.majksa.Example::di
 include:
     - local.yml
 modules:
-    simple: cz.majksa.commons.majava.SimpleModule
+    simple: cz.majksa.SimpleModule
 simple: HELLO
 logging:
     name: logger name
@@ -115,7 +115,7 @@ The application is easily extendable. You can create your custom modules, regist
 #### Listeners
 ```yaml
 listeners:
-    - cz.majksa.commons.handlers.SimpleHandler
+    - cz.majksa.handlers.SimpleHandler
 ```
 
 #### Logging
