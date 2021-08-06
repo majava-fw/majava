@@ -23,6 +23,7 @@ import tech.majava.cli.CliApplication;
 import tech.majava.context.ApplicationContext;
 import tech.majava.context.config.ApplicationConfig;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -43,7 +44,6 @@ public class Bootstrap {
         return boot(null);
     }
 
-
     /**
      * Boots the application with provided config file
      *
@@ -55,6 +55,15 @@ public class Bootstrap {
         final ApplicationContext context = new ApplicationContext(config);
         final Application application = new Application(context.getName(), context, context.getModules());
         return new CliApplication(application);
+    }
+
+    /**
+     * Boots and starts the application with default config file
+     *
+     * @param args application arguments
+     */
+    public static void run(@Nonnull String[] args) {
+        boot().run(args);
     }
 
 }

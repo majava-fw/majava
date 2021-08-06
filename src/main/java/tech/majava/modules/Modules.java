@@ -18,16 +18,16 @@
 
 package tech.majava.modules;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import tech.majava.context.ApplicationContext;
-import tech.majava.context.config.ConfigNode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import tech.majava.context.ApplicationContext;
+import tech.majava.context.config.Config;
+import tech.majava.context.config.ConfigReader;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -42,18 +42,20 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public final class Modules {
 
     @Nonnull
-    private final Map<Class<? extends Module<? extends ModuleConfig>>, Module<? extends ModuleConfig>> map = new HashMap<>();
+    private final Map<Class<? extends Module<? extends Config>>, Module<? extends Config>> map = new HashMap<>();
+    private final ApplicationContext context;
 
     /**
      * Constructor
      *
      * @param modules the initial modules
      */
-    public Modules(@Nonnull List<Module<? extends ModuleConfig>> modules) {
+    public Modules(@Nonnull List<Module<? extends Config>> modules, @Nonnull ApplicationContext context) {
+        this(context);
         modules.forEach(this::add);
     }
 
@@ -62,40 +64,49 @@ public final class Modules {
      *
      * @param module the module to be added
      */
-    public void add(@Nonnull Module<? extends ModuleConfig> module) {
+    public void add(@Nonnull Module<? extends Config> module) {
         map.put(module.getModuleClass(), module);
     }
 
     /**
      * Create a new module and add it
      *
-     * @param context the application context
      * @param clazz   the module class
-     * @param node    the module config
+     * @param rawConfig    the module config
      * @return the created module
      */
     @Nonnull
-    public Module<? extends ModuleConfig> create(@Nonnull ApplicationContext context, @Nonnull Class<? extends Module<? extends ModuleConfig>> clazz, @Nullable JsonNode node) {
-        final List<Constructor<?>> constructors = Arrays.stream(clazz.getConstructors())
+    public Module<?> create(@Nonnull Class<?> clazz, @Nullable String rawConfig) {
+        final Constructor<?> constructor = getConstructor(clazz);
+        final Object config = createConfig(constructor.getParameterTypes()[0], rawConfig);
+        final Module<?> module = createModule(constructor, config);
+        context.getContainer().register(module);
+        return module;
+    }
+
+    @SneakyThrows
+    private Object createConfig(@Nonnull Class<?> configClass, @Nullable String raw) {
+        if (raw == null) {
+            return configClass.newInstance();
+        }
+        return ConfigReader.mapper.readValue(raw, configClass);
+    }
+
+    private Constructor<?> getConstructor(@Nonnull Class<?> moduleClass) {
+        final List<Constructor<?>> constructors = Arrays.stream(moduleClass.getConstructors())
                 .filter(constructor -> constructor.getParameterCount() == 2)
-                .filter(constructor -> ModuleConfig.class.isAssignableFrom(constructor.getParameterTypes()[0]))
+                .filter(constructor -> Config.class.isAssignableFrom(constructor.getParameterTypes()[0]))
                 .filter(constructor -> ApplicationContext.class.equals(constructor.getParameterTypes()[1]))
                 .collect(Collectors.toList());
         if (constructors.isEmpty()) {
-            throw new IllegalArgumentException(String.format("There must be a public constructor with 2 arguments: one that extends %s and second one being %s in the module class: %s", ModuleConfig.class, ApplicationContext.class, clazz));
+            throw new IllegalArgumentException(String.format("There must be a public constructor with 2 arguments: one that extends %s and second one being %s in the module class: %s", Config.class, ApplicationContext.class, moduleClass));
         }
-        final Constructor<?> constructor = constructors.get(0);
-        final Class<?> configClass = constructor.getParameterTypes()[0];
-        try {
-            final Object config = configClass.getConstructor(ConfigNode.class).newInstance(new ConfigNode(node));
-            final Module<? extends ModuleConfig> module = (Module<? extends ModuleConfig>) constructor.newInstance(config, context);
-            context.getContainer().register(module);
-            return module;
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            throw new IllegalArgumentException(String.format("There must be a public constructor with a single argument %s in the config class: %s", ConfigNode.class, configClass));
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
-        }
+        return constructors.get(0);
+    }
+
+    @SneakyThrows
+    private Module<?> createModule(@Nonnull Constructor<?> constructor, @Nonnull Object config) {
+        return (Module<?>) constructor.newInstance(config, context);
     }
 
     /**
@@ -106,7 +117,7 @@ public final class Modules {
      * @return the module
      */
     @SuppressWarnings("unchecked")
-    public <M extends Module<? extends ModuleConfig>> M get(@Nonnull Class<M> module) {
+    public <M extends Module<? extends Config>> M get(@Nonnull Class<M> module) {
         return (M) map.get(module);
     }
 

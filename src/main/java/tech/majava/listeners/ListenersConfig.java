@@ -18,11 +18,11 @@
 
 package tech.majava.listeners;
 
-import tech.majava.context.config.ConfigNode;
-import tech.majava.modules.ModuleConfig;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonMerge;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import tech.majava.context.config.Config;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,19 +33,13 @@ import java.util.List;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Getter
-public class ListenersConfig extends ModuleConfig {
+@Data
+@NoArgsConstructor
+public class ListenersConfig implements Config {
 
-    private final List<Class<?>> handlers;
+    private static final long serialVersionUID = 6340445890977209590L;
 
-    /**
-     * Constructor
-     *
-     * @param node the raw node
-     */
-    public ListenersConfig(@Nonnull ConfigNode node) {
-        super(node);
-        handlers = node.getOrDefault("handlers", new ArrayList<>());
-    }
+    @JsonMerge
+    private List<Class<?>> handlers = new ArrayList<>();
 
 }

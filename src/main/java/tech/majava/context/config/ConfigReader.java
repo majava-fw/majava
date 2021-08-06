@@ -22,16 +22,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.Getter;
 import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
 import tech.majava.context.config.deserialization.MethodsDeserializer;
 import tech.majava.context.config.deserialization.URIDeserializer;
 import tech.majava.listeners.ListenersModule;
 import tech.majava.logging.LoggingModule;
 import tech.majava.modules.Module;
-import tech.majava.modules.ModuleConfig;
 import tech.majava.utils.CollectionUtils;
 import tech.majava.utils.LambaUtils;
-import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -54,10 +53,9 @@ import java.util.stream.Collectors;
  */
 public class ConfigReader {
 
-    public static final HashMap<String, Class<? extends Module<? extends ModuleConfig>>> defaultModules = new HashMap<>();
+    public static final HashMap<String, Class<? extends Module<? extends Config>>> defaultModules = new HashMap<>();
     public static final SimpleModule mapperModule = new SimpleModule();
-
-    private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    public static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     @Nonnull
     private final List<File> usedFiles = new ArrayList<>();

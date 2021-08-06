@@ -19,9 +19,10 @@
 
 package tech.majava.logging;
 
-import tech.majava.context.config.ConfigNode;
-import tech.majava.modules.ModuleConfig;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonMerge;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import tech.majava.context.config.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,25 +35,21 @@ import java.net.URI;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Getter
-public class LoggingConfig extends ModuleConfig {
+@Data
+@NoArgsConstructor
+public class LoggingConfig implements Config {
+
+    private static final long serialVersionUID = 5644051024948255779L;
 
     @Nullable
-    private final URI errors;
-    @Nonnull
-    private final String name;
-    private final boolean debug;
+    @JsonMerge
+    private URI errors = null;
 
-    /**
-     * Constructor
-     *
-     * @param node the raw node
-     */
-    public LoggingConfig(@Nonnull ConfigNode node) {
-        super(node);
-        name = node.getOrDefault("name", "Majava");
-        errors = node.get("errors");
-        debug = node.getOrDefault("debug", false);
-    }
+    @Nonnull
+    @JsonMerge
+    private String name = "Majava";
+
+    @JsonMerge
+    private boolean debug = false;
 
 }

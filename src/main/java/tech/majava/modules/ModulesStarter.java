@@ -18,6 +18,7 @@
 
 package tech.majava.modules;
 
+import tech.majava.context.config.Config;
 import tech.majava.logging.LoggingModule;
 
 import javax.annotation.Nonnull;
@@ -39,8 +40,8 @@ import java.util.function.Function;
 public final class ModulesStarter {
 
     @Nonnull
-    private final Map<Class<? extends Module<? extends ModuleConfig>>, Module<? extends ModuleConfig>> modules;
-    private final Map<Class<? extends Module<? extends ModuleConfig>>, List<Class<? extends Module<? extends ModuleConfig>>>> modulesDependencies = new HashMap<>();
+    private final Map<Class<? extends Module<? extends Config>>, Module<? extends Config>> modules;
+    private final Map<Class<? extends Module<? extends Config>>, List<Class<? extends Module<? extends Config>>>> modulesDependencies = new HashMap<>();
     private final Function<Throwable, Void> logFunction;
 
     /**
@@ -90,7 +91,7 @@ public final class ModulesStarter {
      * @return {@link java.util.concurrent.CompletableFuture}
      */
     @Nonnull
-    public CompletableFuture<Void> start(Class<? extends Module<? extends ModuleConfig>> module) {
+    public CompletableFuture<Void> start(Class<? extends Module<? extends Config>> module) {
         return start(modules.get(module));
     }
 
@@ -102,7 +103,7 @@ public final class ModulesStarter {
      * @return {@link java.util.concurrent.CompletableFuture}
      */
     @Nonnull
-    public CompletableFuture<Void> shutdown(Class<? extends Module<? extends ModuleConfig>> module) {
+    public CompletableFuture<Void> shutdown(Class<? extends Module<? extends Config>> module) {
         return shutdown(modules.get(module));
     }
 
@@ -113,16 +114,16 @@ public final class ModulesStarter {
      * @return {@link java.util.concurrent.CompletableFuture}
      */
     @Nonnull
-    private CompletableFuture<Void> start(@Nonnull Module<? extends ModuleConfig> module) {
+    private CompletableFuture<Void> start(@Nonnull Module<? extends Config> module) {
         if (module.isRunning()) {
             return module.getFuture();
         }
         final List<CompletableFuture<Void>> futures = new ArrayList<>();
-        final List<Class<? extends Module<? extends ModuleConfig>>> dependencies = module.getDependencies();
-        for (Class<? extends Module<? extends ModuleConfig>> dependencyClass : dependencies) {
+        final List<Class<? extends Module<? extends Config>>> dependencies = module.getDependencies();
+        for (Class<? extends Module<? extends Config>> dependencyClass : dependencies) {
             modulesDependencies.computeIfAbsent(dependencyClass, clazz -> new ArrayList<>());
             modulesDependencies.get(dependencyClass).add(module.getModuleClass());
-            final Module<? extends ModuleConfig> dependency = modules.get(dependencyClass);
+            final Module<? extends Config> dependency = modules.get(dependencyClass);
             if (dependency == null) {
                 throw new IllegalArgumentException("Module " + module.name + " depends on " + dependencyClass.getName() + ", which has not been registered!");
             }
@@ -139,7 +140,7 @@ public final class ModulesStarter {
      * @return {@link java.util.concurrent.CompletableFuture}
      */
     @Nonnull
-    private CompletableFuture<Void> shutdown(@Nonnull Module<? extends ModuleConfig> module) {
+    private CompletableFuture<Void> shutdown(@Nonnull Module<? extends Config> module) {
         if (!module.isRunning()) {
             return module.getFuture();
         }

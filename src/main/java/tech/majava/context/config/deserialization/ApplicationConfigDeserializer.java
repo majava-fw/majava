@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import tech.majava.context.config.ApplicationConfig;
+import tech.majava.context.config.Config;
 import tech.majava.context.config.Methods;
 import tech.majava.modules.Module;
-import tech.majava.modules.ModuleConfig;
 
 import java.io.IOException;
 import java.net.URI;
@@ -60,7 +60,10 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
     public ApplicationConfig deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         final ApplicationConfig config = new ApplicationConfig();
         final JsonNode jsonNode = p.readValueAsTree();
-        config.setDi(jsonNode.get("di").traverse(p.getCodec()).readValueAs(Methods.class));
+        final JsonNode di = jsonNode.get("di");
+        if (di != null) {
+            config.setDi(di.traverse(p.getCodec()).readValueAs(Methods.class));
+        }
         config.setName(jsonNode.get("name").asText(config.getName()));
         config.setInclude(jsonNode.findValuesAsText("include"));
         final JsonNode tmp = jsonNode.get("tmp");
@@ -69,9 +72,9 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
         }
         final JsonNode modules = jsonNode.get("modules");
         if (modules != null) {
-            config.setModules(new ObjectMapper().convertValue(modules, new TypeReference<Map<String, Class<? extends Module<? extends ModuleConfig>>>>(){}));
+            config.setModules(new ObjectMapper().convertValue(modules, new TypeReference<Map<String, Class<? extends Module<? extends Config>>>>(){}));
         }
-        final Map<String, JsonNode> modulesConfig = new ObjectMapper().convertValue(jsonNode, new TypeReference<Map<String, JsonNode>>(){});
+        final Map<String, String> modulesConfig = new ObjectMapper().convertValue(jsonNode, new TypeReference<Map<String, String>>(){});
         modulesConfig.remove("di");
         modulesConfig.remove("name");
         modulesConfig.remove("include");

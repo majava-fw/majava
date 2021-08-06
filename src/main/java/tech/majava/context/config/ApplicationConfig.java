@@ -19,13 +19,12 @@
 package tech.majava.context.config;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.databind.JsonNode;
-import tech.majava.modules.Module;
-import tech.majava.modules.ModuleConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
+import tech.majava.modules.Module;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +49,7 @@ import java.util.Map;
 public class ApplicationConfig implements Config {
 
     private static final long serialVersionUID = -6561001459587273380L;
+
     @Nonnull
     private static final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
@@ -67,11 +67,11 @@ public class ApplicationConfig implements Config {
 
     @Nonnull
     @JsonMerge
-    private Map<String, Class<? extends Module<? extends ModuleConfig>>> modules = new HashMap<>();
+    private Map<String, Class<? extends Module<? extends Config>>> modules = new HashMap<>(ConfigReader.defaultModules);
 
     @Nonnull
     @JsonMerge
-    private Map<String, JsonNode> moduleConfigs = new HashMap<>();
+    private Map<String, String> moduleConfigs = new HashMap<>();
 
     @Nullable
     @JsonMerge

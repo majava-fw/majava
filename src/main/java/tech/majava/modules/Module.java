@@ -21,6 +21,7 @@ package tech.majava.modules;
 import tech.majava.cli.commands.CommandsGroup;
 import tech.majava.context.ApplicationContext;
 import lombok.Getter;
+import tech.majava.context.config.Config;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -35,9 +36,9 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 @Getter
-public abstract class Module<C extends ModuleConfig> {
+public abstract class Module<C extends Config> {
 
-    protected final List<Class<? extends Module<? extends ModuleConfig>>> dependencies = new ArrayList<>();
+    protected final List<Class<? extends Module<? extends Config>>> dependencies = new ArrayList<>();
 
     @Nonnull
     protected final C config;

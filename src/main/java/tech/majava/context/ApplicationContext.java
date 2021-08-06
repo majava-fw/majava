@@ -93,9 +93,9 @@ public class ApplicationContext {
      */
     @Nonnull
     private Modules loadModules(@Nonnull ApplicationConfig config) {
-        final Map<String, JsonNode> configs = config.getModuleConfigs();
-        final Modules modules = new Modules();
-        config.getModules().forEach((name, clazz) -> modules.add(modules.create(this, clazz, configs.get(name))));
+        final Map<String, String> configs = config.getModuleConfigs();
+        final Modules modules = new Modules(this);
+        config.getModules().forEach((name, clazz) -> modules.add(modules.create(clazz, configs.get(name))));
         return modules;
     }
 
