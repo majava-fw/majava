@@ -1,5 +1,5 @@
 /*
- *  majava - tech.majava.logging.events.DebugLogEvent
+ *  majava - tech.majava.logging.listeners.events.ErrorLogEvent
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tech.majava.logging.events;
+package tech.majava.logging.listeners.events;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
 
 /**
- * <p><b>Class {@link DebugLogEvent}</b></p>
+ * <p><b>Class {@link ErrorLogEvent}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-public class DebugLogEvent extends AbstractLogEvent {
+public class ErrorLogEvent extends AbstractLogEvent {
 
-    public DebugLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
-        super(Level.DEBUG, marker, location, message, throwable);
+    public ErrorLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
+        super(Level.ERROR, marker, location, message, throwable);
     }
 
 }

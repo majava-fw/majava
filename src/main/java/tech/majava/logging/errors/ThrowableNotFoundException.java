@@ -29,4 +29,8 @@ public class ThrowableNotFoundException extends IllegalArgumentException {
 
     private static final long serialVersionUID = 3586152127619062714L;
 
+    public ThrowableNotFoundException(String s) {
+        super(s);
+    }
+
 }

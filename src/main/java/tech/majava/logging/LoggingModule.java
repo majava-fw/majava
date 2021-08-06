@@ -22,7 +22,12 @@ import tech.majava.cli.ConsoleModifiers;
 import tech.majava.cli.ConsoleTextBuilder;
 import tech.majava.context.ApplicationContext;
 import tech.majava.listeners.ListenersModule;
-import tech.majava.logging.events.LogEvent;
+import tech.majava.logging.commands.Delete;
+import tech.majava.logging.commands.List;
+import tech.majava.logging.commands.Open;
+import tech.majava.logging.errors.ErrorsSaver;
+import tech.majava.logging.listeners.events.LogEvent;
+import tech.majava.logging.listeners.LogEventHandler;
 import tech.majava.modules.Module;
 import lombok.Getter;
 import org.apache.logging.log4j.Level;
@@ -72,6 +77,13 @@ public class LoggingModule extends Module<LoggingConfig> {
         handler = new LogEventHandler(logFunction);
         logger = new Logger(LogManager.getLogger(config.getName()), config.getErrors(), handler);
         setDebug(config.isDebug());
+        final ErrorsSaver errorsSaver = logger.getErrorsSaver();
+        if (errorsSaver != null) {
+            cliCommands
+                    .register(new Open(errorsSaver, cliCommands))
+                    .register(new List(errorsSaver, cliCommands))
+                    .register(new Delete(errorsSaver, cliCommands));
+        }
         context.getContainer()
                 .register(logFunction)
                 .register(handler)
@@ -166,7 +178,7 @@ public class LoggingModule extends Module<LoggingConfig> {
                 .append("An error internal error occurred!")
                 .newLine()
                 .modify(ConsoleModifiers.RED)
-                .append(throwable.getMessage())
+                .append(throwable.getMessage() == null ? "No message" : throwable.getMessage())
                 .print();
         logger.atError()
                 .withLocation()

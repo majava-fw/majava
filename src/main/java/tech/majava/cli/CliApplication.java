@@ -87,6 +87,11 @@ public class CliApplication {
                 .register(new Debug(group, application))
                 .register(new Restart(group, application))
                 .register(new Stop(group, application));
+        application.getModules().getMap().values().forEach(module -> {
+            if (!module.getCliCommands().isEmpty()) {
+                cliRunner.register(module.getCliCommands());
+            }
+        });
         printWelcome();
     }
 
@@ -122,7 +127,7 @@ public class CliApplication {
             if (throwable instanceof ConsoleRuntimeException) {
                 consoleMessenger
                         .modify(ConsoleModifiers.RED)
-                        .append(throwable.getMessage())
+                        .append(throwable.getMessage() == null ? "No message" : throwable.getMessage())
                         .print();
                 return;
             }

@@ -105,7 +105,7 @@ public interface ErrorsSaver {
     default @NonNull SerializableThrowable get(@NonNull String id) throws ThrowableNotFoundException {
         final Map<String, SerializableThrowable> map = map();
         if (!map.containsKey(id)) {
-            throw new ThrowableNotFoundException();
+            throw new ThrowableNotFoundException("Error with ID " + id + " does not exist!");
         }
         return map.get(id);
     }
@@ -123,7 +123,7 @@ public interface ErrorsSaver {
                 return get(value);
             }
         }
-        throw new ThrowableNotFoundException();
+        throw new ThrowableNotFoundException("Error by throwable " + throwable + " does not exist!");
     }
 
     /**
@@ -139,7 +139,7 @@ public interface ErrorsSaver {
                 return entry.getKey();
             }
         }
-        throw new ThrowableNotFoundException();
+        throw new ThrowableNotFoundException("Error by serializable throwable " + throwable + " does not exist!");
     }
 
     /**

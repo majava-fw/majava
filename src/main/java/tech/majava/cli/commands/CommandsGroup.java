@@ -63,7 +63,7 @@ public final class CommandsGroup {
     @Nonnull
     public CommandsGroup register(@Nonnull CliCommand command) {
         if (commands.containsKey(command.getName())) {
-            throw new IllegalArgumentException("Command with name " + name + " has already been registered!");
+            throw new IllegalArgumentException("Command with name " + name + ":" + command.name + " has already been registered!");
         }
         empty = false;
         commands.put(command.getName(), command);

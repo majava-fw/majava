@@ -1,5 +1,5 @@
 /*
- *  majava - tech.majava.logging.events.AlwaysLogEvent
+ *  majava - tech.majava.logging.listeners.events.CustomLogEvent
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tech.majava.logging.events;
+package tech.majava.logging.listeners.events;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
 
+import javax.annotation.Nonnull;
+
 /**
- * <p><b>Class {@link AlwaysLogEvent}</b></p>
+ * <p><b>Class {@link CustomLogEvent}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-public class AlwaysLogEvent extends AbstractLogEvent {
+public class CustomLogEvent extends AbstractLogEvent {
 
-    public AlwaysLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
-        super(Level.ALL, marker, location, message, throwable);
+    public CustomLogEvent(@Nonnull Level level, Marker marker, StackTraceElement location, Message message, Throwable throwable) {
+        super(level, marker, location, message, throwable);
     }
 
 }

@@ -20,7 +20,7 @@ package tech.majava.logging;
 
 import tech.majava.logging.errors.ErrorsSaver;
 import tech.majava.logging.errors.FileErrorsSaver;
-import tech.majava.logging.events.LogEvent;
+import tech.majava.logging.listeners.events.LogEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.message.Message;
+import tech.majava.logging.listeners.LogEventHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,6 +47,7 @@ public class Logger {
 
     @Getter(AccessLevel.MODULE)
     private final org.apache.logging.log4j.Logger logger;
+    @Getter
     @Nullable
     private final ErrorsSaver errorsSaver;
     private final LogEventHandler logEventHandler;
@@ -60,6 +62,7 @@ public class Logger {
             errorsSaver = null;
         } else {
             errorsSaver = new FileErrorsSaver(new File(errors));
+            errorsSaver.init();
         }
     }
 

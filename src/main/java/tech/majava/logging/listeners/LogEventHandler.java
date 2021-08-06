@@ -1,5 +1,5 @@
 /*
- *  majava - tech.majava.logging.events.ErrorLogEvent
+ *  majava - tech.majava.logging.listeners.LogEventHandler
  *  Copyright (C) 2021  Majksa
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tech.majava.logging.events;
+package tech.majava.logging.listeners;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.message.Message;
+import tech.majava.listeners.eventhandlers.AbstractEventsHandler;
+import tech.majava.logging.listeners.events.LogEvent;
+
+import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 /**
- * <p><b>Class {@link ErrorLogEvent}</b></p>
+ * <p><b>Class {@link LogEventHandler}</b></p>
  *
  * @author majksa
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ErrorLogEvent extends AbstractLogEvent {
+public class LogEventHandler extends AbstractEventsHandler<LogEvent> {
 
-    public ErrorLogEvent(Marker marker, StackTraceElement location, Message message, Throwable throwable) {
-        super(Level.ERROR, marker, location, message, throwable);
+    public LogEventHandler(@Nonnull Function<Throwable, Void> loggingFunction) {
+        super(LogEvent.class, loggingFunction);
     }
 
 }
