@@ -26,6 +26,8 @@ import lombok.Getter;
 import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
 import tech.majava.context.config.deserialization.MethodsDeserializer;
 import tech.majava.context.config.deserialization.URIDeserializer;
+import tech.majava.listeners.ListenersConfig;
+import tech.majava.listeners.ListenersConfigDeserializer;
 import tech.majava.listeners.ListenersModule;
 import tech.majava.logging.LoggingModule;
 import tech.majava.modules.Module;
@@ -71,6 +73,7 @@ public class ConfigReader {
         mapperModule.addDeserializer(ApplicationConfig.class, new ApplicationConfigDeserializer());
         mapper.registerModule(mapperModule);
         defaultModules.put("listeners", ListenersModule.class);
+        mapperModule.addDeserializer(ListenersConfig.class, new ListenersConfigDeserializer());
         defaultModules.put("logging", LoggingModule.class);
     }
 

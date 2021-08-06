@@ -31,6 +31,7 @@ import tech.majava.modules.Module;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -74,13 +75,15 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
         if (modules != null) {
             config.setModules(new ObjectMapper().convertValue(modules, new TypeReference<Map<String, Class<? extends Module<? extends Config>>>>(){}));
         }
-        final Map<String, String> modulesConfig = new ObjectMapper().convertValue(jsonNode, new TypeReference<Map<String, String>>(){});
+        final Map<String, JsonNode> modulesConfig = new ObjectMapper().convertValue(jsonNode, new TypeReference<Map<String, JsonNode>>(){});
         modulesConfig.remove("di");
         modulesConfig.remove("name");
         modulesConfig.remove("include");
         modulesConfig.remove("modules");
         modulesConfig.remove("tmp");
-        config.setModuleConfigs(modulesConfig);
+        final HashMap<String, String> moduleConfigs = new HashMap<>();
+        modulesConfig.forEach((s, jsonNode1) -> moduleConfigs.put(s, jsonNode1.toString()));
+        config.setModuleConfigs(moduleConfigs);
         return config;
     }
 
