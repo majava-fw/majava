@@ -50,6 +50,7 @@ public class ListenersModule extends Module<ListenersConfig> {
     public ListenersModule(@Nonnull ListenersConfig config, @Nonnull ApplicationContext context) {
         super(config, context, "listeners", "listeners modules");
         config.getHandlers().forEach(this::registerHandler);
+        config.getListeners().forEach(this::registerListener);
     }
 
     /**
@@ -57,7 +58,7 @@ public class ListenersModule extends Module<ListenersConfig> {
      *
      * @param clazz the class of the handler
      */
-    private void registerHandler(@NonNull Class<?> clazz) {
+    public void registerHandler(@NonNull Class<?> clazz) {
         EventsHandler<?> handler;
         try {
             handler = (EventsHandler<?>) context.getContainer().get(clazz);
@@ -69,6 +70,25 @@ public class ListenersModule extends Module<ListenersConfig> {
             }
         }
         handlers.put(handler.getRootEvent(), handler);
+    }
+
+    /**
+     * Creates and registers a listener
+     *
+     * @param clazz the class of the handler
+     */
+    public void registerListener(@NonNull Class<?> clazz) {
+        IListener<?> listener;
+        try {
+            listener = (IListener<?>) context.getContainer().get(clazz);
+        } catch (NullPointerException e) {
+            try {
+                listener = (IListener<?>) clazz.newInstance();
+            } catch (InstantiationException | IllegalAccessException ex) {
+                throw new NullPointerException(clazz.getName());
+            }
+        }
+        loadListener(listener);
     }
 
     /**

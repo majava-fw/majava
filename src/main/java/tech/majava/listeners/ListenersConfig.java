@@ -42,4 +42,7 @@ public class ListenersConfig implements Config {
     @JsonMerge
     private List<Class<?>> handlers = new ArrayList<>();
 
+    @JsonMerge
+    private List<Class<?>> listeners = new ArrayList<>();
+
 }
