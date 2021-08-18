@@ -25,14 +25,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import tech.majava.context.config.ApplicationConfig;
-import tech.majava.context.config.Config;
-import tech.majava.context.config.Methods;
-import tech.majava.modules.Module;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * <p><b>Class {@link ApplicationConfigDeserializer}</b></p>
@@ -44,6 +43,7 @@ import java.util.Map;
 public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationConfig> {
 
     private static final long serialVersionUID = 7661000716783379354L;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ApplicationConfigDeserializer() {
         super(ApplicationConfig.class);
@@ -60,31 +60,26 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
     @Override
     public ApplicationConfig deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         final ApplicationConfig config = new ApplicationConfig();
-        final JsonNode jsonNode = p.readValueAsTree();
-        final JsonNode di = jsonNode.get("di");
-        if (di != null) {
-            config.setDi(di.traverse(p.getCodec()).readValueAs(Methods.class));
-        }
-        config.setName(jsonNode.get("name").asText(config.getName()));
-        config.setInclude(jsonNode.findValuesAsText("include"));
-        final JsonNode tmp = jsonNode.get("tmp");
-        if (tmp != null) {
-            config.setTmp(tmp.traverse(p.getCodec()).readValueAs(URI.class));
-        }
-        final JsonNode modules = jsonNode.get("modules");
-        if (modules != null) {
-            config.setModules(new ObjectMapper().convertValue(modules, new TypeReference<Map<String, Class<? extends Module<? extends Config>>>>(){}));
-        }
-        final Map<String, JsonNode> modulesConfig = new ObjectMapper().convertValue(jsonNode, new TypeReference<Map<String, JsonNode>>(){});
-        modulesConfig.remove("di");
-        modulesConfig.remove("name");
-        modulesConfig.remove("include");
-        modulesConfig.remove("modules");
-        modulesConfig.remove("tmp");
+        final Map<String, JsonNode> nodes = objectMapper.convertValue(p.readValueAsTree(), new TypeReference<Map<String, JsonNode>>(){});
+        set(nodes.remove("di"), config::setDi);
+        set(nodes.remove("name"), config::setName);
+        set(nodes.remove("include"), config::setInclude);
+        set(nodes.remove("tmp"), config::setTmp);
+        set(nodes.remove("module"), config::setModules);
         final HashMap<String, String> moduleConfigs = new HashMap<>();
-        modulesConfig.forEach((s, jsonNode1) -> moduleConfigs.put(s, jsonNode1.toString()));
+        nodes.forEach((s, jsonNode) -> moduleConfigs.put(s, jsonNode.toString()));
         config.setModuleConfigs(moduleConfigs);
         return config;
+    }
+
+    private <T> void set(@Nullable JsonNode node, @Nonnull Consumer<T> setter) {
+        if (node != null) {
+            setter.accept(convert(node));
+        }
+    }
+
+    private <T> T convert(@Nonnull JsonNode node) {
+        return objectMapper.convertValue(node, new TypeReference<T>(){});
     }
 
 }
