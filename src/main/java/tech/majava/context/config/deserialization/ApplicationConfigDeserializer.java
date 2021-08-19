@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import tech.majava.context.config.ApplicationConfig;
+import tech.majava.context.config.Config;
+import tech.majava.modules.Module;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,12 +62,12 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
     @Override
     public ApplicationConfig deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         final ApplicationConfig config = new ApplicationConfig();
-        final Map<String, JsonNode> nodes = objectMapper.convertValue(p.readValueAsTree(), new TypeReference<Map<String, JsonNode>>(){});
+        final Map<String, JsonNode> nodes = convert(p.readValueAsTree(), new TypeReference<Map<String, JsonNode>>() {});
         set(nodes.remove("di"), config::setDi);
         set(nodes.remove("name"), config::setName);
         set(nodes.remove("include"), config::setInclude);
         set(nodes.remove("tmp"), config::setTmp);
-        set(nodes.remove("module"), config::setModules);
+        set(nodes.remove("modules"), config::setModules, new TypeReference<Map<String, Class<? extends Module<? extends Config>>>>() {});
         final HashMap<String, String> moduleConfigs = new HashMap<>();
         nodes.forEach((s, jsonNode) -> moduleConfigs.put(s, jsonNode.toString()));
         config.setModuleConfigs(moduleConfigs);
@@ -73,13 +75,17 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
     }
 
     private <T> void set(@Nullable JsonNode node, @Nonnull Consumer<T> setter) {
+        set(node, setter, new TypeReference<T>() {});
+    }
+
+    private <T> void set(@Nullable JsonNode node, @Nonnull Consumer<T> setter, @Nonnull TypeReference<T> typeReference) {
         if (node != null) {
-            setter.accept(convert(node));
+            setter.accept(convert(node, typeReference));
         }
     }
 
-    private <T> T convert(@Nonnull JsonNode node) {
-        return objectMapper.convertValue(node, new TypeReference<T>(){});
+    private <T> T convert(@Nonnull JsonNode node, @Nonnull TypeReference<T> typeReference) {
+        return objectMapper.convertValue(node, typeReference);
     }
 
 }
