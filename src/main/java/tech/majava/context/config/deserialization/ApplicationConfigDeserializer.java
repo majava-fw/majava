@@ -68,9 +68,7 @@ public class ApplicationConfigDeserializer extends StdDeserializer<ApplicationCo
         set(nodes.remove("include"), config::setInclude);
         set(nodes.remove("tmp"), config::setTmp);
         set(nodes.remove("modules"), config::setModules, new TypeReference<Map<String, Class<? extends Module<? extends Config>>>>() {});
-        final HashMap<String, String> moduleConfigs = new HashMap<>();
-        nodes.forEach((s, jsonNode) -> moduleConfigs.put(s, jsonNode.toString()));
-        config.setModuleConfigs(moduleConfigs);
+        config.setModuleConfigs(new HashMap<>(nodes));
         return config;
     }
 

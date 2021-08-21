@@ -19,7 +19,6 @@
 
 package tech.majava.logging;
 
-import com.fasterxml.jackson.annotation.JsonMerge;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tech.majava.context.config.Config;
@@ -42,14 +41,11 @@ public class LoggingConfig implements Config {
     private static final long serialVersionUID = 5644051024948255779L;
 
     @Nullable
-    @JsonMerge
     private URI errors = null;
 
     @Nonnull
-    @JsonMerge
     private String name = "Majava";
 
-    @JsonMerge
     private boolean debug = false;
 
 }

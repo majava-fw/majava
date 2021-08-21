@@ -18,7 +18,6 @@
 
 package tech.majava.listeners;
 
-import com.fasterxml.jackson.annotation.JsonMerge;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tech.majava.context.config.Config;
@@ -39,10 +38,8 @@ public class ListenersConfig implements Config {
 
     private static final long serialVersionUID = 6340445890977209590L;
 
-    @JsonMerge
     private List<Class<?>> handlers = new ArrayList<>();
 
-    @JsonMerge
     private List<Class<?>> listeners = new ArrayList<>();
 
 }

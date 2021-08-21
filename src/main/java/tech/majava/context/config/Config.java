@@ -18,6 +18,7 @@
 
 package tech.majava.context.config;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 
 /**
@@ -28,4 +29,12 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 public interface Config extends Serializable {
+
+//    void merge(@Nonnull Config config);
+
+    @SuppressWarnings("unchecked")
+    default <C extends Config> C convert(@Nonnull Config config) {
+        return (C) config;
+    }
+
 }

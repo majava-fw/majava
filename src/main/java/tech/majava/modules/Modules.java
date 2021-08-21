@@ -18,6 +18,7 @@
 
 package tech.majava.modules;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -72,24 +73,24 @@ public final class Modules {
      * Create a new module and add it
      *
      * @param clazz   the module class
-     * @param rawConfig    the module config
+     * @param node    the module config
      * @return the created module
      */
     @Nonnull
-    public Module<?> create(@Nonnull Class<?> clazz, @Nullable String rawConfig) {
+    public Module<?> create(@Nonnull Class<?> clazz, @Nullable JsonNode node) {
         final Constructor<?> constructor = getConstructor(clazz);
-        final Object config = createConfig(constructor.getParameterTypes()[0], rawConfig);
+        final Object config = createConfig(constructor.getParameterTypes()[0], node);
         final Module<?> module = createModule(constructor, config);
         context.getContainer().register(module);
         return module;
     }
 
     @SneakyThrows
-    private Object createConfig(@Nonnull Class<?> configClass, @Nullable String raw) {
+    private Object createConfig(@Nonnull Class<?> configClass, @Nullable JsonNode raw) {
         if (raw == null) {
             return configClass.newInstance();
         }
-        return ConfigReader.mapper.readValue(raw, configClass);
+        return ConfigReader.mapper.convertValue(raw, configClass);
     }
 
     private Constructor<?> getConstructor(@Nonnull Class<?> moduleClass) {

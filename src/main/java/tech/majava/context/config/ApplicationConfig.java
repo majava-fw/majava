@@ -19,6 +19,7 @@
 package tech.majava.context.config;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,27 +55,21 @@ public class ApplicationConfig implements Config {
     private static final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
     @Nonnull
-    @JsonMerge
     private String name = "Majava";
 
     @Nullable
-    @JsonMerge
     private URI tmp = null;
 
     @Nonnull
-    @JsonMerge
     private List<String> include = new ArrayList<>();
 
     @Nonnull
-    @JsonMerge
     private Map<String, Class<? extends Module<? extends Config>>> modules = new HashMap<>(ConfigReader.defaultModules);
 
     @Nonnull
-    @JsonMerge
-    private Map<String, String> moduleConfigs = new HashMap<>();
+    private Map<String, JsonNode> moduleConfigs = new HashMap<>();
 
     @Nullable
-    @JsonMerge
     private Methods di = null;
 
     /**

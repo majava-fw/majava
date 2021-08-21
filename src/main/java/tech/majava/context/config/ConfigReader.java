@@ -18,11 +18,18 @@
 
 package tech.majava.context.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import jodd.json.JsonArray;
+import jodd.json.JsonObject;
+import jodd.json.JsonParser;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
 import tech.majava.context.config.deserialization.MethodsDeserializer;
 import tech.majava.context.config.deserialization.URIDeserializer;
@@ -36,13 +43,19 @@ import tech.majava.utils.LambaUtils;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,15 +70,14 @@ public class ConfigReader {
 
     public static final HashMap<String, Class<? extends Module<? extends Config>>> defaultModules = new HashMap<>();
     public static final SimpleModule mapperModule = new SimpleModule();
-    public static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    public static final ObjectMapper mapper = new ObjectMapper();
 
     @Nonnull
     private final List<File> usedFiles = new ArrayList<>();
+    private final ObjectMapper yamlToJson = new ObjectMapper(new YAMLFactory());
     @Getter
     @Nonnull
-    private final ApplicationConfig config;
-    @Nonnull
-    private final ObjectReader reader;
+    private ApplicationConfig config;
 
     static {
         mapperModule.addDeserializer(Methods.class, new MethodsDeserializer());
@@ -84,19 +96,40 @@ public class ConfigReader {
      * @throws IOException if an exception occurs when reading
      */
     public ConfigReader(@Nonnull File file) throws IOException {
-        config = mapper.readValue(file, ApplicationConfig.class);
-        config.setModules(CollectionUtils.mergeMaps(defaultModules, config.getModules()));
-        reader = mapper.readerForUpdating(config);
-        usedFiles.add(file);
-        read(file, new ArrayList<>(config.getInclude()));
-        config.setInclude(
-                usedFiles
-                        .stream()
-                        .filter(LambaUtils.negate(file::equals))
-                        .map(File::getAbsolutePath)
-                        .collect(Collectors.toList())
-        );
-        checkConfigOptions();
+        try {
+            final JsonObject fullRawConfig = readAll(file);
+            fullRawConfig.put("include", usedFiles.stream().map(File::toString).collect(Collectors.toList()));
+            config = mapper.readValue(fullRawConfig.toString(), ApplicationConfig.class);
+            checkConfigOptions();
+        } catch (Throwable throwable) {
+            if (throwable.getCause() instanceof IOException) {
+                throw (IOException) throwable.getCause();
+            }
+            throw throwable;
+        }
+    }
+
+    @Nonnull
+    @SneakyThrows
+    private JsonObject readAll(@Nonnull File main) {
+        final JsonNode content = yamlToJson.readValue(main, JsonNode.class);
+        final JsonObject parsed = JsonParser.create().parseAsJsonObject(content.toString());
+        final JsonArray include = parsed.getJsonArray("include");
+        if (include != null) {
+            include
+                    .stream()
+                    .map(String::valueOf)
+                    .map(query -> getPath(main, query))
+                    .filter(LambaUtils.negate(usedFiles::contains))
+                    .peek(usedFiles::add)
+                    .map(this::readAll)
+                    .forEach(parsed::mergeInDeep);
+        }
+        return parsed;
+    }
+
+    private static File getPath(@Nonnull File main, @Nonnull String query) {
+        return query.startsWith("/") ? new File(query.substring(1)) : new File(main.getParent(), query);
     }
 
     /**
@@ -107,26 +140,6 @@ public class ConfigReader {
         moduleKeys.removeAll(config.getModules().keySet());
         if (moduleKeys.size() > 0) {
             throw new IllegalArgumentException("Unexpected options inside config: " + String.join(", ", moduleKeys));
-        }
-    }
-
-    /**
-     * Reads provided config files
-     *
-     * @param current the current file to allow relative paths
-     * @param files   the list of file paths
-     * @throws IOException if an exception occurs when reading
-     */
-    private void read(@Nonnull File current, @Nonnull List<String> files) throws IOException {
-        for (String file : files) {
-            final File fileToRead = file.startsWith("/") ? new File(file.substring(1)) : new File(current.getParent(), file);
-            if (usedFiles.contains(fileToRead)) {
-                continue;
-            }
-            usedFiles.add(fileToRead);
-            reader.readValue(fileToRead);
-            final ApplicationConfig applicationConfig = mapper.readValue(fileToRead, ApplicationConfig.class);
-            read(fileToRead, new ArrayList<>(applicationConfig.getInclude()));
         }
     }
 
