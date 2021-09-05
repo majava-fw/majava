@@ -18,16 +18,10 @@
 
 package tech.majava.context.config;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jodd.json.JsonArray;
 import jodd.json.JsonObject;
-import jodd.json.JsonParser;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
@@ -38,24 +32,18 @@ import tech.majava.listeners.ListenersConfigDeserializer;
 import tech.majava.listeners.ListenersModule;
 import tech.majava.logging.LoggingModule;
 import tech.majava.modules.Module;
-import tech.majava.utils.CollectionUtils;
+import tech.majava.utils.JsonUtils;
 import tech.majava.utils.LambaUtils;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,7 +62,6 @@ public class ConfigReader {
 
     @Nonnull
     private final List<File> usedFiles = new ArrayList<>();
-    private final ObjectMapper yamlToJson = new ObjectMapper(new YAMLFactory());
     @Getter
     @Nonnull
     private ApplicationConfig config;
@@ -112,9 +99,10 @@ public class ConfigReader {
     @Nonnull
     @SneakyThrows
     private JsonObject readAll(@Nonnull File main) {
-        final JsonNode content = yamlToJson.readValue(main, JsonNode.class);
-        final JsonObject parsed = JsonParser.create().parseAsJsonObject(content.toString());
-        final JsonArray include = parsed.getJsonArray("include");
+        final JsonObject parsed = ConfigProcessor.read();
+        final JsonObject mainObject = JsonUtils.readYaml(main);
+        parsed.mergeInDeep(mainObject);
+        final JsonArray include = mainObject.getJsonArray("include");
         if (include != null) {
             include
                     .stream()
