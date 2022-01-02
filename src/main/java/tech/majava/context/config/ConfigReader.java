@@ -18,10 +18,16 @@
 
 package tech.majava.context.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jodd.json.JsonArray;
 import jodd.json.JsonObject;
+import jodd.json.JsonParser;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import tech.majava.context.config.deserialization.ApplicationConfigDeserializer;
@@ -32,18 +38,24 @@ import tech.majava.listeners.ListenersConfigDeserializer;
 import tech.majava.listeners.ListenersModule;
 import tech.majava.logging.LoggingModule;
 import tech.majava.modules.Module;
-import tech.majava.utils.JsonUtils;
+import tech.majava.utils.CollectionUtils;
 import tech.majava.utils.LambaUtils;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +63,7 @@ import java.util.stream.Collectors;
  * <p><b>Class {@link ConfigReader}</b></p>
  *
  * @author majksa
- * @version 1.0.0
+ * @version 1.1.5
  * @since 1.0.0
  */
 public class ConfigReader {
@@ -62,9 +74,10 @@ public class ConfigReader {
 
     @Nonnull
     private final List<File> usedFiles = new ArrayList<>();
+    private final ObjectMapper yamlToJson = new ObjectMapper(new YAMLFactory());
     @Getter
     @Nonnull
-    private ApplicationConfig config;
+    private final ApplicationConfig config;
 
     static {
         mapperModule.addDeserializer(Methods.class, new MethodsDeserializer());
@@ -87,7 +100,6 @@ public class ConfigReader {
             final JsonObject fullRawConfig = readAll(file);
             fullRawConfig.put("include", usedFiles.stream().map(File::toString).collect(Collectors.toList()));
             config = mapper.readValue(fullRawConfig.toString(), ApplicationConfig.class);
-            checkConfigOptions();
         } catch (Throwable throwable) {
             if (throwable.getCause() instanceof IOException) {
                 throw (IOException) throwable.getCause();
@@ -98,11 +110,10 @@ public class ConfigReader {
 
     @Nonnull
     @SneakyThrows
-    private JsonObject readAll(@Nonnull File main) {
-        final JsonObject parsed = ConfigProcessor.read();
-        final JsonObject mainObject = JsonUtils.readYaml(main);
-        parsed.mergeInDeep(mainObject);
-        final JsonArray include = mainObject.getJsonArray("include");
+    protected JsonObject readAll(@Nonnull File main) {
+        final JsonNode content = yamlToJson.readValue(main, JsonNode.class);
+        final JsonObject parsed = JsonParser.create().parseAsJsonObject(content.toString());
+        final JsonArray include = parsed.getJsonArray("include");
         if (include != null) {
             include
                     .stream()
@@ -116,14 +127,14 @@ public class ConfigReader {
         return parsed;
     }
 
-    private static File getPath(@Nonnull File main, @Nonnull String query) {
+    protected static File getPath(@Nonnull File main, @Nonnull String query) {
         return query.startsWith("/") ? new File(query.substring(1)) : new File(main.getParent(), query);
     }
 
     /**
      * Makes sure that there are no unexpected options inside the config
      */
-    private void checkConfigOptions() {
+    public void checkConfigOptions() {
         final Set<String> moduleKeys = new HashSet<>(config.getModuleConfigs().keySet());
         moduleKeys.removeAll(config.getModules().keySet());
         if (moduleKeys.size() > 0) {
@@ -140,7 +151,9 @@ public class ConfigReader {
      */
     @Nonnull
     public static ApplicationConfig read(@Nonnull File file) throws IOException {
-        return new ConfigReader(file).config;
+        final ConfigReader reader = new ConfigReader(file);
+        reader.checkConfigOptions();
+        return reader.config;
     }
 
     /**
